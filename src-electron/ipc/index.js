@@ -1,19 +1,13 @@
-import { ipcMain, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import os from 'node:os'
 import path from 'node:path'
-import fs, { write } from 'node:fs'
-import { Blob } from 'node:buffer'
-import { Duplex, pipeline, Readable } from 'node:stream'
+import fs from 'node:fs'
 import moment from 'moment'
+import db from '../db'
 
 let writeFileStream
-
-function bufferToStream(buffer) {
-  let stream = new Readable()
-  stream.push(buffer)
-  // stream.push(null);
-  return stream
-}
+const homePath = app.getPath('home')
+console.log(homePath)
 
 ipcMain.handle('rec:start', async (e, args) => {
   const filePath = path.join(`${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.mp4`)

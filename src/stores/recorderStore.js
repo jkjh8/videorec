@@ -19,7 +19,19 @@ export const useRecorderStore = defineStore('recorder', {
     ],
     supportedTypes: [],
     recorder: null,
-    state: ''
+    state: '',
+    selectedFormat: '',
+    quality: 2610000,
+    qualitys: [
+      { label: '500k', value: 500000 },
+      { label: '1.5M', value: 1500000 },
+      { label: '2.5M', value: 2610000 },
+      { label: '4.5M', value: 4500000 },
+      { label: '8M', value: 8700000 },
+      { label: '15M', value: 15000000 },
+      { label: '20M', value: 20000000 },
+      { label: '25M', value: 25000000 }
+    ]
   }),
   getters: {
     doubleCount: (state) => state.counter * 2

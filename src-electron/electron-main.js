@@ -1,6 +1,7 @@
 import { app, BrowserWindow, nativeTheme } from 'electron'
 import path from 'path'
 import os from 'os'
+import db from './db'
 import './ipc'
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
@@ -21,7 +22,7 @@ function createWindow() {
    */
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
-    width: 1000,
+    width: 1500,
     height: 600,
     useContentSize: true,
     webPreferences: {

@@ -30,7 +30,7 @@ export const useStreamStore = defineStore('stream', {
         })
         console.log('video', this.videoDevices, 'audio', this.audioDevices)
       } catch (err) {
-        console.error('Not found Devices', err)
+        console.error('Start Stream Error = ', err)
       }
     },
     async startStream() {
@@ -39,8 +39,10 @@ export const useStreamStore = defineStore('stream', {
           video: true,
           audio: true
         })
+        return null
       } catch (err) {
-        console.error(err)
+        console.error('Device not found', err)
+        return 'Device Not Found'
       }
     }
   }

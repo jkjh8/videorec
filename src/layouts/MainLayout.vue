@@ -1,5 +1,6 @@
 <script setup>
 import { useQuasar } from 'quasar'
+import RecControls from 'components/recControls.vue'
 const $q = useQuasar()
 $q.dark.set(true)
 </script>
@@ -19,5 +20,9 @@ $q.dark.set(true)
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer>
+      <RecControls />
+    </q-footer>
   </q-layout>
 </template>

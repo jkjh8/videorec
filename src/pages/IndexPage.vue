@@ -1,12 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import RecControls from 'components/recControls'
+import { useQuasar } from 'quasar'
 import { useRecorderStore } from 'src/stores/recorderStore'
 import { useStreamStore } from 'src/stores/streamStore'
+import { useAudioStore } from 'src/stores/audioStore'
 
 const $stream = useStreamStore()
 const $rec = useRecorderStore()
-const vd = ref(null)
+const $audio = useAudioStore()
+const $q = useQuasar()
+
+const error = ref(null)
 const video = ref(null)
 
 const audioContext = new AudioContext()
@@ -45,21 +49,11 @@ function setVideoMon() {
 onMounted(async () => {
   $rec.chkSupportedTypes()
   await $stream.getDevices()
-  await $stream.startStream()
-  // await $rec.init($stream.stream)
-  console.log($stream.stream)
-  setVideoMon()
-
-  const source = audioContext.createMediaElementSource(vd.value)
-  let analyser = audioContext.createAnalyser()
-  source.connect(analyser)
-  var data = new Float32Array(analyser.frequencyBinCount)
-  function draw() {
-    requestAnimationFrame(draw)
-    analyser.getFloatTimeDomainData(data)
-    console.log(data)
+  error.value = await $stream.startStream()
+  if (!error.value) {
+    await $rec.init($stream.stream)
+    setVideoMon()
   }
-  draw()
 })
 </script>
 
@@ -68,16 +62,9 @@ onMounted(async () => {
     <div class="row justify-center">
       <video ref="video" class="video" />
     </div>
-    <canvas id="canvas" width="64" height="256"></canvas>
-    <button onclick="audioContext.resume()">Start</button>
-    <RecControls />
-    <audio
-      ref="vd"
-      crossOrigin="anonymous"
-      src="https://raw.githubusercontent.com/quasarframework/quasar-ui-qmediaplayer/dev/demo/public/media/Scott_Holmes_-_04_-_Upbeat_Party.mp3"
-      controls
-    />
   </div>
+
+  <div v-if="error" class="fixed-center">{{ error }}</div>
 </template>
 
 <style scoped>
