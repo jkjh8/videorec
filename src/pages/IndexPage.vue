@@ -6,8 +6,35 @@ import { useStreamStore } from 'src/stores/streamStore'
 
 const $stream = useStreamStore()
 const $rec = useRecorderStore()
-
+const vd = ref(null)
 const video = ref(null)
+
+const audioContext = new AudioContext()
+// navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+//   var source = new MediaStreamAudioSourceNode(audioContext, {
+//     mediaStream: stream
+//   })
+//   var level,
+//     smoothLevel = 0,
+//     canvasMeter
+//   let canvasContext = canvas.getContext('2d')
+//   let analyser = audioContext.createAnalyser()
+//   source.connect(analyser)
+//   var data = new Float32Array(analyser.frequencyBinCount)
+//   function draw() {
+//     requestAnimationFrame(draw)
+//     analyser.getFloatTimeDomainData(data) // get data for this sample
+//     canvasContext.clearRect(0, 0, canvas.width, canvas.height)
+//     level = 0
+//     for (let i = 0; i < data.length; i++)
+//       level += (5 * Math.abs(data[i])) / data.length
+//     smoothLevel = 0.85 * smoothLevel + 0.15 * level
+//     canvasMeter = canvas.height * (1 - smoothLevel) - 1
+//     canvasContext.fillRect(1, canvasMeter, canvas.width, canvas.height)
+//     console.log(smoothLevel)
+//   }
+//   draw()
+// })
 
 function setVideoMon() {
   video.value.srcObject = $stream.stream
@@ -19,36 +46,37 @@ onMounted(async () => {
   $rec.chkSupportedTypes()
   await $stream.getDevices()
   await $stream.startStream()
-  await $rec.init($stream.stream)
+  // await $rec.init($stream.stream)
   console.log($stream.stream)
   setVideoMon()
 
-  const audioContext = new AudioContext()
-  const mediaStreamSource = audioContext.createMediaStreamSource($stream.stream)
-  const processor = audioContext.AudioWorkletProcessor(audioContext, 'vu-meter')
-  mediaStreamSource.connect(processor)
-
-  processor.onaudioProcess = function (e) {
-    const inputData = e.inputBuffer.getChannelData(0)
-    const inputDataLength = inputData.length
-    const total = 0
-
-    for (let i = 0; i < inputDataLength; i++) {
-      total += Math.abs(inputData[i++])
-    }
-
-    const rms = Math.sqrt(total / inputDataLength)
-    console.log(rms)
+  const source = audioContext.createMediaElementSource(vd.value)
+  let analyser = audioContext.createAnalyser()
+  source.connect(analyser)
+  var data = new Float32Array(analyser.frequencyBinCount)
+  function draw() {
+    requestAnimationFrame(draw)
+    analyser.getFloatTimeDomainData(data)
+    console.log(data)
   }
+  draw()
 })
 </script>
 
 <template>
-  <div class="q-gutter-y-md" style="padding: 1%">
+  <div class="q-gutter-y-md" style="padding: 1% 1% 5% 1%">
     <div class="row justify-center">
       <video ref="video" class="video" />
     </div>
+    <canvas id="canvas" width="64" height="256"></canvas>
+    <button onclick="audioContext.resume()">Start</button>
     <RecControls />
+    <audio
+      ref="vd"
+      crossOrigin="anonymous"
+      src="https://raw.githubusercontent.com/quasarframework/quasar-ui-qmediaplayer/dev/demo/public/media/Scott_Holmes_-_04_-_Upbeat_Party.mp3"
+      controls
+    />
   </div>
 </template>
 
