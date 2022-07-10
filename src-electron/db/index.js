@@ -4,14 +4,14 @@ import Datastore from 'nedb-promises'
 function dbInit(file) {
   const dbPath = app.getPath('userData')
   return new Datastore({
-    filename: `${dbPath}/qlab/${file}`,
+    filename: `${dbPath}/$r/${file}`,
     timestampData: true,
     autoload: true
   })
 }
 
 const db = {
-  setup: dbInit('recSetup')
+  setup: dbInit('setup')
 }
 
 export default db

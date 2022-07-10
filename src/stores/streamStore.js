@@ -35,13 +35,22 @@ export const useStreamStore = defineStore('stream', {
     },
     async startStream() {
       try {
-        this.stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true
-        })
+        const options = {}
+        if (this.selVideoDevice) {
+          options.video.deviceId = this.selVideoDevice
+        } else {
+          options.video = true
+        }
+        if (this.selAudioDevice) {
+          options.audio.deviceId = this.selAudioDevice
+        } else {
+          options.audio = true
+        }
+        console.log(options)
+        this.stream = await navigator.mediaDevices.getUserMedia(options)
         return null
       } catch (err) {
-        console.error('Device not found', err)
+        console.error('Init Steram Error', err)
         return 'Device Not Found'
       }
     }
