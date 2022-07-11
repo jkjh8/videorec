@@ -13,18 +13,47 @@ const emit = defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 function onSubmit() {
-  onDialogOK({
-    format: $rec.selectedFormat,
-    videoDev: $stream.selVideoDevice,
-    audioDev: $stream.selAudioDevice,
-    quality: $rec.quality
-  })
+  onDialogOK([
+    { key: 'format', value: $rec.selectedFormat },
+    { key: 'videodeivce', value: $stream.videoDevice },
+    { key: 'audiodevice', value: $stream.audioDevice },
+    { key: 'quality', value: $rec.quality },
+    {
+      key: 'resolution',
+      value:
+        typeof $stream.resolution === 'string'
+          ? $stream.resolution
+          : { ...$stream.resolution }
+    }
+  ])
 }
 </script>
 
 <template>
   <q-dialog ref="dialogRef" persistent>
     <q-card class="q-dialog-plugin confirmDialog">
+      <q-card-section class="nameTag q-py-xs" style="">
+        <div class="row justify-between items-center">
+          <div>Video Recorder Setup</div>
+          <div>
+            <q-btn
+              flat
+              round
+              icon="refresh"
+              @click=";[$stream.getDevices, $rec.chkSupportedTypes]"
+            >
+              <q-tooltip
+                style="background: rgba(0, 0, 0, 0.8)"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                Reload
+              </q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+      </q-card-section>
       <q-form @submit="onSubmit">
         <q-card-section>
           <div class="q-gutter-y-sm">
@@ -36,7 +65,7 @@ function onSubmit() {
               :options="$rec.supportedTypes"
             />
             <q-select
-              v-model="$stream.selVideoDevice"
+              v-model="$stream.videoDevice"
               filled
               dense
               label="Video Device"
@@ -47,7 +76,7 @@ function onSubmit() {
               map-options
             />
             <q-select
-              v-model="$stream.selAudioDevice"
+              v-model="$stream.audioDevice"
               filled
               dense
               label="Audio Device"
@@ -63,6 +92,17 @@ function onSubmit() {
               dense
               label="Rec Quality"
               :options="$rec.qualitys"
+              option-label="label"
+              option-value="value"
+              emit-value
+              map-options
+            />
+            <q-select
+              v-model="$stream.resolution"
+              filled
+              dense
+              label="Video Resolution"
+              :options="$stream.resolutions"
               option-label="label"
               option-value="value"
               emit-value
@@ -94,6 +134,9 @@ function onSubmit() {
 <style>
 .confirmDialog {
   border-radius: 0.5rem;
-  background: rgba(30, 30, 30, 0.7);
+  background: rgba(30, 30, 30, 0.8);
+}
+.nameTag {
+  background: rgba(66, 135, 255, 0.7);
 }
 </style>

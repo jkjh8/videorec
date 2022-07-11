@@ -30,7 +30,8 @@ export const useRecorderStore = defineStore('recorder', {
       { label: '8M', value: 8700000 },
       { label: '15M', value: 15000000 },
       { label: '20M', value: 20000000 },
-      { label: '25M', value: 25000000 }
+      { label: '25M', value: 25000000 },
+      { label: '40M', value: 40000000 }
     ]
   }),
   getters: {
@@ -50,8 +51,9 @@ export const useRecorderStore = defineStore('recorder', {
       }
       console.log(this.supportedTypes)
     },
-    async init(stream, options) {
-      this.recorder = new MediaRecorder(stream, options)
+    async init(stream) {
+      this.recorder = new MediaRecorder(stream, { bitsPerSecond: this.quality })
+      console.log(this.recorder)
 
       this.recorder.ondataavailable = async (d) => {
         API.send('rec:data', await d.data.arrayBuffer())

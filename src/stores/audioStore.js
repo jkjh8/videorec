@@ -32,13 +32,16 @@ export const useAudioStore = defineStore('audio', {
 
         // merger.connect(dest)
 
-        this.meterDataL = new Float32Array(analyserL.frequencyBinCount)
-        this.meterDataR = new Float32Array(analyserR.frequencyBinCount)
+        this.meterDataL = new Float32Array(this.analyserL.frequencyBinCount)
+        this.meterDataR = new Float32Array(this.analyserR.frequencyBinCount)
+        console.log('audio api init')
+        this.updateMeter()
       } catch (err) {
         console.error('Web Audio Api Error', err)
       }
     },
     updateMeter() {
+      requestAnimationFrame(this.updateMeter)
       this.analyserL.getFloatTimeDomainData(this.meterDataL)
       this.analyserR.getFloatTimeDomainData(this.meterDataR)
       this.meterL = 0
@@ -56,6 +59,7 @@ export const useAudioStore = defineStore('audio', {
           console.error(err)
         }
       }
+      // console.log('level', this.meterL, this.meterR)
     }
   }
 })

@@ -6,12 +6,36 @@ export const useStreamStore = defineStore('stream', {
     streamOptions: {},
     videoDevices: [],
     audioDevices: [],
-    selVideoDevice: null,
-    selAudioDevice: null
+    videoDevice: null,
+    audioDevice: null,
+    resolution: null,
+    resolutions: [
+      { label: 'Auto', value: 'auto' },
+      { label: '720 30p', value: { width: 1280, height: 720, framerate: 30 } },
+      { label: '720 60p', value: { width: 1290, height: 720, framerate: 60 } },
+      {
+        label: '1080 30p',
+        value: { width: 1920, height: 1080, framerate: 30 }
+      },
+      {
+        label: '1080 60p',
+        value: { width: 1920, height: 1080, framerate: 60 }
+      },
+      {
+        label: '1440 30p',
+        value: { width: 2560, height: 1440, framerate: 30 }
+      },
+      {
+        label: '1440 60p',
+        value: { width: 2560, height: 1440, framerate: 60 }
+      },
+      {
+        label: '2160 30p',
+        value: { width: 3840, height: 2160, framerate: 30 }
+      },
+      { label: '2160 60p', value: { width: 3840, height: 2160, framerate: 60 } }
+    ]
   }),
-  getters: {
-    doubleCount: (state) => state.counter * 2
-  },
   actions: {
     async getDevices() {
       this.videoDevices = []
@@ -28,23 +52,30 @@ export const useStreamStore = defineStore('stream', {
               break
           }
         })
-        console.log('video', this.videoDevices, 'audio', this.audioDevices)
       } catch (err) {
         console.error('Start Stream Error = ', err)
       }
     },
     async startStream() {
       try {
-        const options = {}
-        if (this.selVideoDevice) {
-          options.video.deviceId = this.selVideoDevice
-        } else {
-          options.video = true
+        if (this.stream) {
+          this.stream.getTracks().forEach((track) => {
+            track.stop()
+          })
         }
-        if (this.selAudioDevice) {
-          options.audio.deviceId = this.selAudioDevice
-        } else {
-          options.audio = true
+        let options = { video: true, audio: true }
+        if (this.videoDevice) {
+          options.video = {
+            deviceId: this.videoDevice
+          }
+        }
+        if (this.audioDevice) {
+          options.audio = { deviceId: this.audioDevice }
+        }
+        if (this.resolution !== 'auto') {
+          options.video.height = this.resolution.height
+          options.video.width = this.resolution.width
+          options.video.frameRate = this.resolution.framerate
         }
         console.log(options)
         this.stream = await navigator.mediaDevices.getUserMedia(options)

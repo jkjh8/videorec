@@ -1,17 +1,16 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRecorderStore } from 'src/stores/recorderStore'
 import { useStreamStore } from 'src/stores/streamStore'
 import { useAudioStore } from 'src/stores/audioStore'
+import { video, refreshVideo } from 'src/composables/useVideo'
+import { error } from 'src/composables/useError'
 
 const $stream = useStreamStore()
 const $rec = useRecorderStore()
 const $audio = useAudioStore()
 const $q = useQuasar()
-
-const error = ref(null)
-const video = ref(null)
 
 const audioContext = new AudioContext()
 // navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
@@ -40,20 +39,47 @@ const audioContext = new AudioContext()
 //   draw()
 // })
 
-function setVideoMon() {
-  video.value.srcObject = $stream.stream
-  video.value.play()
-  video.value.muted = true
-}
-
 onMounted(async () => {
-  $rec.chkSupportedTypes()
-  await $stream.getDevices()
-  error.value = await $stream.startStream()
-  if (!error.value) {
-    await $rec.init($stream.stream)
-    setVideoMon()
+  $q.loading.show()
+  try {
+    $rec.chkSupportedTypes()
+    await $stream.getDevices()
+    error.value = await $stream.startStream()
+    if (!error.value) {
+      refreshVideo($stream.stream)
+      await $rec.init($stream.stream)
+      await $audio.init($stream.stream)
+    }
+    $q.loading.hide()
+  } catch (err) {
+    $q.loading.hide()
+    console.log(err)
   }
+})
+
+onBeforeMount(async () => {
+  const items = await API.send('setup:get')
+  console.log(items)
+  items.forEach((item) => {
+    switch (item.key) {
+      case 'format':
+        $rec.selectedFormat = item.value
+        break
+      case 'videodeivce':
+        $stream.videoDevice = item.value
+        console.log('update')
+        break
+      case 'audiodevice':
+        $stream.audioDevice = item.value
+        break
+      case 'resolution':
+        $stream.resolution = item.value
+        break
+      case 'quality':
+        $rec.quality = item.value
+        break
+    }
+  })
 })
 </script>
 

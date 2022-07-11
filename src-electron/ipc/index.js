@@ -25,3 +25,19 @@ ipcMain.handle('rec:data', async (e, buffer) => {
 ipcMain.handle('rec:stop', async (e, args) => {
   writeFileStream.end()
 })
+
+ipcMain.handle('setup:update', async (e, items) => {
+  for (let i = 0; i < items.length; i++) {
+    console.log(items[i])
+    await db.setup.update(
+      { key: items[i].key },
+      { $set: { value: items[i].value } },
+      { upsert: true }
+    )
+  }
+  return items
+})
+
+ipcMain.handle('setup:get', async (e) => {
+  return await db.setup.find({})
+})
