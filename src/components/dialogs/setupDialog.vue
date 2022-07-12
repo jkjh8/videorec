@@ -1,31 +1,34 @@
 <script setup>
-import { useQuasar, useDialogPluginComponent } from 'quasar'
-import { useRecorderStore } from 'src/stores/recorderStore'
-import { useStreamStore } from 'src/stores/streamStore'
-import { useAudioStore } from 'src/stores/audioStore'
+import { useQuasar, useDialogPluginComponent } from "quasar";
+import { useRecorderStore } from "src/stores/recorderStore";
+import { useStreamStore } from "src/stores/streamStore";
 
-const $stream = useStreamStore()
-const $rec = useRecorderStore()
-const $audio = useAudioStore()
-const $q = useQuasar()
+const $stream = useStreamStore();
+const $rec = useRecorderStore();
+const $q = useQuasar();
 
-const emit = defineEmits([...useDialogPluginComponent.emits])
-const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const emit = defineEmits([...useDialogPluginComponent.emits]);
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent();
+
+function refresh() {
+  $stream.getDevices();
+  $rec.chkSupportedTypes();
+}
 
 function onSubmit() {
   onDialogOK([
-    { key: 'format', value: $rec.selectedFormat },
-    { key: 'videodeivce', value: $stream.videoDevice },
-    { key: 'audiodevice', value: $stream.audioDevice },
-    { key: 'quality', value: $rec.quality },
+    { key: "format", value: $rec.selectedFormat },
+    { key: "videodeivce", value: $stream.videoDevice },
+    { key: "audiodevice", value: $stream.audioDevice },
+    { key: "quality", value: $rec.quality },
     {
-      key: 'resolution',
+      key: "resolution",
       value:
-        typeof $stream.resolution === 'string'
+        typeof $stream.resolution === "string"
           ? $stream.resolution
-          : { ...$stream.resolution }
-    }
-  ])
+          : { ...$stream.resolution },
+    },
+  ]);
 }
 </script>
 
@@ -36,12 +39,7 @@ function onSubmit() {
         <div class="row justify-between items-center">
           <div>Video Recorder Setup</div>
           <div>
-            <q-btn
-              flat
-              round
-              icon="refresh"
-              @click=";[$stream.getDevices, $rec.chkSupportedTypes]"
-            >
+            <q-btn flat round icon="refresh" @click="refresh">
               <q-tooltip
                 style="background: rgba(0, 0, 0, 0.8)"
                 anchor="top middle"
@@ -112,12 +110,7 @@ function onSubmit() {
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn
-            style="width: 80px"
-            label="취소"
-            flat
-            @click="onDialogCancel"
-          />
+          <q-btn style="width: 80px" label="취소" flat @click="onDialogCancel" />
           <q-btn
             style="width: 80px"
             label="확인"

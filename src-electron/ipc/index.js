@@ -1,21 +1,31 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
 import moment from 'moment'
+import disk from 'check-disk-space'
 import db from '../db'
 
 let writeFileStream
 const homePath = app.getPath('home')
-console.log(homePath)
 
 ipcMain.handle('rec:start', async (e, args) => {
-  const filePath = path.join(`${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.mp4`)
+  let filePath
+  const r = await db.setup.findOne({ key: 'folder' })
+  if (r && r.value && fs.existsSync(r.value)) {
+    filePath = path.join(
+      r.value,
+      `${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.webm`
+    )
+  } else {
+    BrowserWindow.fromId(1).send('status:folder', homePath)
+    filePath = path.join(
+      homePath,
+      `${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.webm`
+    )
+  }
   writeFileStream = fs.createWriteStream(filePath)
-  writeFileStream.on('finish', () => {
-    console.log('end rec')
-  })
-  console.log('start rec', filePath)
+  writeFileStream.on('finish', () => {})
 })
 
 ipcMain.handle('rec:data', async (e, buffer) => {
@@ -38,6 +48,54 @@ ipcMain.handle('setup:update', async (e, items) => {
   return items
 })
 
-ipcMain.handle('setup:get', async (e) => {
+ipcMain.handle('setup:get', async () => {
   return await db.setup.find({})
+})
+
+ipcMain.handle('status:getdisk', async (e, path) => {
+  if (path) {
+    return await disk(path)
+  }
+  return await disk(homePath)
+})
+
+ipcMain.handle('status:selfolder', async () => {
+  const path = dialog.showOpenDialogSync({
+    title: 'Select Folder',
+    defaultPath: app.getPath('home'),
+    properties: ['openDirectory']
+  })
+  if (path && path.length) {
+    db.setup.update(
+      { key: 'folder' },
+      { $set: { value: path[0] } },
+      { upsert: true }
+    )
+    return path[0]
+  }
+  return null
+})
+
+ipcMain.handle('status:getfolder', async () => {
+  const r = await db.setup.findOne({ key: 'folder' })
+  if (r && r.value) {
+    if (fs.existsSync(r.value)) {
+      return r.value
+    }
+  }
+  BrowserWindow.fromId(1).send('status:folder', homePath)
+  return homePath
+})
+
+ipcMain.handle('status:openfinder', (e, path) => {
+  if (fs.existsSync(path)) {
+    return shell.openPath(path)
+  }
+  BrowserWindow.fromId(1).send('status:folder', homePath)
+  return shell.openPath(homePath)
+})
+
+ipcMain.handle('status:resize', (e, hi) => {
+  const currentSize = BrowserWindow.fromId(1).getSize()
+  BrowserWindow.fromId(1).setSize(currentSize[0], hi + 100)
 })

@@ -49,10 +49,12 @@ export const useRecorderStore = defineStore('recorder', {
           }
         })
       }
-      console.log(this.supportedTypes)
     },
     async init(stream) {
-      this.recorder = new MediaRecorder(stream, { bitsPerSecond: this.quality })
+      this.recorder = new MediaRecorder(stream, {
+        audioBitsPerSecond: 128000,
+        videoBitsPerSecond: this.quality
+      })
       console.log(this.recorder)
 
       this.recorder.ondataavailable = async (d) => {
@@ -82,7 +84,6 @@ export const useRecorderStore = defineStore('recorder', {
     },
     getState() {
       this.state = this.recorder.state
-      console.log(this.state)
     },
     start() {
       API.send('rec:start')

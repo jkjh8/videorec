@@ -4,7 +4,6 @@ const video = ref(null)
 const audioMute = ref(false)
 
 function refreshVideo(stream) {
-  console.log(stream)
   if (!video.value.paused) {
     video.value.pause()
   }
@@ -14,9 +13,10 @@ function refreshVideo(stream) {
   video.value.muted = audioMute.value
 }
 
-function setAudioMute() {
+async function setAudioMute() {
   audioMute.value = !audioMute.value
   video.value.muted = audioMute.value
+  await API.send('setup:update', [{ key: 'audiomute', value: audioMute.value }])
 }
 
 export { audioMute, video, refreshVideo, setAudioMute }

@@ -1,8 +1,8 @@
 <script setup>
-import { useQuasar } from 'quasar'
-import RecControls from 'components/recControls.vue'
-const $q = useQuasar()
-$q.dark.set(true)
+import { useQuasar } from "quasar";
+import RecControls from "src/components/recorderControls.vue";
+const $q = useQuasar();
+$q.dark.set(true);
 </script>
 
 <template>

@@ -42,6 +42,7 @@ export const useStreamStore = defineStore('stream', {
       this.audioDevices = []
       try {
         const devices = await navigator.mediaDevices.enumerateDevices()
+
         devices.forEach((d) => {
           switch (d.kind) {
             case 'audioinput':
@@ -63,26 +64,51 @@ export const useStreamStore = defineStore('stream', {
             track.stop()
           })
         }
-        let options = { video: true, audio: true }
+        let options = {
+          video: true,
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            volume: 1,
+            channelCount: 2
+          }
+        }
         if (this.videoDevice) {
           options.video = {
-            deviceId: this.videoDevice
+            deviceId: { exact: this.videoDevice }
           }
         }
         if (this.audioDevice) {
-          options.audio = { deviceId: this.audioDevice }
+          options.audio = {
+            deviceId: { exact: this.audioDevice },
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            volume: 1,
+            channelCount: 2
+          }
         }
         if (this.resolution !== 'auto') {
-          options.video.height = this.resolution.height
-          options.video.width = this.resolution.width
-          options.video.frameRate = this.resolution.framerate
+          options.video.height = { exact: this.resolution.height }
+          options.video.width = { exact: this.resolution.width }
+          options.video.frameRate = {
+            ideal: this.resolution.framerate,
+            min: 10
+          }
         }
         console.log(options)
         this.stream = await navigator.mediaDevices.getUserMedia(options)
         return null
       } catch (err) {
-        console.error('Init Steram Error', err)
-        return 'Device Not Found'
+        console.error('Init Steram Error', err.name)
+        if (err.name === 'OverconstrainedError') {
+          return 'Not Supported Mode'
+        }
+        if (err.name === 'NotFoundError') {
+          return 'Device Not Found'
+        }
+        return err.name
       }
     }
   }
