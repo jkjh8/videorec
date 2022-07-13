@@ -3,7 +3,7 @@ import { ref } from 'vue'
 const video = ref(null)
 const audioMute = ref(false)
 
-function refreshVideo(stream) {
+function setVideo(stream) {
   if (!video.value.paused) {
     video.value.pause()
   }
@@ -16,7 +16,13 @@ function refreshVideo(stream) {
 async function setAudioMute() {
   audioMute.value = !audioMute.value
   video.value.muted = audioMute.value
-  await API.send('setup:update', [{ key: 'audiomute', value: audioMute.value }])
+  await API.send('setup:update', [
+    { key: 'audiomute', value: audioMute.value }
+  ])
 }
 
-export { audioMute, video, refreshVideo, setAudioMute }
+function windowResize() {
+  API.send('status:resize', video.value.clientHeight)
+}
+
+export { audioMute, video, setVideo, setAudioMute, windowResize }

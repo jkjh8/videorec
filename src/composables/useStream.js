@@ -1,9 +1,4 @@
 import { ref } from 'vue'
-const stream = ref(null)
-const streamOptions = ref(null)
-const videoDevice = ref(null)
-const audioDevice = ref(null)
-const resolution = ref(null)
 
 let videoDevices = []
 let audioDevices = []
@@ -42,6 +37,10 @@ const resolutions = [
     value: { width: 3840, height: 2160, framerate: 60 }
   }
 ]
+const stream = ref(null)
+const videoDevice = ref(null)
+const audioDevice = ref(null)
+const resolution = ref('auto')
 
 async function getDevices() {
   videoDevices = []
@@ -65,7 +64,7 @@ async function getDevices() {
 }
 
 function stopStream() {
-  return new Promise(function async (resolve, reject) {
+  return new Promise(async (resolve, reject) => {
     try {
       if (stream.value) {
         const tracks = await stream.value.getTracks()
@@ -85,14 +84,13 @@ function stopStream() {
 async function startStream() {
   return new Promise(async (resolve, reject) => {
     try {
-
       // build options
       let options = {
         video: true,
         audio: {
           echoCancellation: false,
-          noiseSuppression:false,
-          audoGainControl:false,
+          noiseSuppression: false,
+          audoGainControl: false,
           volume: 1,
           channelCount: 2
         }
@@ -119,12 +117,20 @@ async function startStream() {
         }
       }
       // get streams
-      stream.value = await navigator.mediaDevices.getUserMedia(options)
+      stream.value = await navigator.mediaDevices.getUserMedia(
+        options
+      )
       resolve()
     } catch (err) {
-      reject (err.name)
+      reject(err)
     }
   })
+}
+
+function changeDevices() {
+  navigator.mediaDevices.ondevicechange = () => {
+    getDevices()
+  }
 }
 
 export {
@@ -137,4 +143,6 @@ export {
   resolutions,
   getDevices,
   stopStream,
+  startStream,
+  changeDevices
 }

@@ -1,19 +1,71 @@
 import { ref } from 'vue'
+import { audioMute } from './useVideo'
+import { format, quality } from './useRecorder'
+import { videoDevice, audioDevice, resolution } from './useStream'
 
-const disk = ref(null)
+const disk = ref({ size: 0, free: 0 })
 const folder = ref(null)
-
-let diskChecker = ref(null)
+const error = ref('')
+let diskusage
 
 function startDiskChkTimer() {
-  diskChecker.value = setInterval(async () => {
+  diskusage = setInterval(async () => {
     disk.value = await API.send('status:getdisk', folder.value)
   }, 60000)
 }
 
 function stopDiskChkTimer() {
-  clearInterval(diskChecker.value)
-  diskchecker.value = null
+  clearInterval(diskusage)
 }
 
-export { disk, folder, startDiskChkTimer, stopDiskChkTimer }
+function APIHandler() {
+  API.handle('status:state', (e, item) => {
+    stateParser(item)
+  })
+}
+
+function stateParser(item) {
+  switch (item.key) {
+    case 'format':
+      format.value = item.value
+      break
+    case 'videodevice':
+      videoDevice.value = item.value
+      break
+    case 'audiodevice':
+      audioDevice.value = item.value
+      break
+    case 'resolution':
+      resolution.value = item.value
+      break
+    case 'quality':
+      quality.value = item.value
+      break
+    case 'audiomute':
+      audioMute.value = item.value
+      break
+    case 'folder':
+      folder.value = item.value
+      break
+    case 'disk':
+      disk.value = item.value
+      break
+  }
+}
+
+async function getSetup() {
+  const items = await API.send('setup:get')
+  items.forEach((item) => {
+    stateParser(item)
+  })
+}
+
+export {
+  disk,
+  error,
+  folder,
+  startDiskChkTimer,
+  stopDiskChkTimer,
+  APIHandler,
+  getSetup
+}

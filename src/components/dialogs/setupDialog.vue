@@ -1,34 +1,51 @@
 <script setup>
-import { useQuasar, useDialogPluginComponent } from "quasar";
-import { useRecorderStore } from "src/stores/recorderStore";
-import { useStreamStore } from "src/stores/streamStore";
+import { useQuasar, useDialogPluginComponent } from 'quasar'
+import { useRecorderStore } from 'src/stores/recorderStore'
+import { useStreamStore } from 'src/stores/streamStore'
 
-const $stream = useStreamStore();
-const $rec = useRecorderStore();
-const $q = useQuasar();
+import {
+  getDevices,
+  videoDevices,
+  videoDevice,
+  audioDevices,
+  audioDevice,
+  resolutions,
+  resolution
+} from 'src/composables/useStream'
 
-const emit = defineEmits([...useDialogPluginComponent.emits]);
-const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent();
+import {
+  checkSupportedTypes,
+  supportedTypes,
+  format,
+  qualitys,
+  quality
+} from 'src/composables/useRecorder'
+
+const $stream = useStreamStore()
+const $rec = useRecorderStore()
+const $q = useQuasar()
+
+const emit = defineEmits([...useDialogPluginComponent.emits])
+const { dialogRef, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 
 function refresh() {
-  $stream.getDevices();
-  $rec.chkSupportedTypes();
+  getDevices()
+  checkSupportedTypes()
 }
 
 function onSubmit() {
   onDialogOK([
-    { key: "format", value: $rec.selectedFormat },
-    { key: "videodeivce", value: $stream.videoDevice },
-    { key: "audiodevice", value: $stream.audioDevice },
-    { key: "quality", value: $rec.quality },
+    { key: 'format', value: format.value },
+    { key: 'videodeivce', value: videoDevice.value },
+    { key: 'audiodevice', value: audioDevice.value },
+    { key: 'quality', value: quality.value },
     {
-      key: "resolution",
+      key: 'resolution',
       value:
-        typeof $stream.resolution === "string"
-          ? $stream.resolution
-          : { ...$stream.resolution },
-    },
-  ]);
+        typeof resolution === 'string' ? resolution : { resolution }
+    }
+  ])
 }
 </script>
 
@@ -56,51 +73,51 @@ function onSubmit() {
         <q-card-section>
           <div class="q-gutter-y-sm">
             <q-select
-              v-model="$rec.selectedFormat"
+              v-model="format"
               filled
               dense
               label="Recording Format"
-              :options="$rec.supportedTypes"
+              :options="supportedTypes"
             />
             <q-select
-              v-model="$stream.videoDevice"
+              v-model="videoDevice"
               filled
               dense
               label="Video Device"
-              :options="$stream.videoDevices"
+              :options="videoDevices"
               option-label="label"
               option-value="deviceId"
               emit-value
               map-options
             />
             <q-select
-              v-model="$stream.audioDevice"
+              v-model="audioDevice"
               filled
               dense
               label="Audio Device"
-              :options="$stream.audioDevices"
+              :options="audioDevices"
               option-label="label"
               option-value="deviceId"
               emit-value
               map-options
             />
             <q-select
-              v-model="$rec.quality"
+              v-model="quality"
               filled
               dense
               label="Rec Quality"
-              :options="$rec.qualitys"
+              :options="qualitys"
               option-label="label"
               option-value="value"
               emit-value
               map-options
             />
             <q-select
-              v-model="$stream.resolution"
+              v-model="resolution"
               filled
               dense
               label="Video Resolution"
-              :options="$stream.resolutions"
+              :options="resolutions"
               option-label="label"
               option-value="value"
               emit-value
@@ -110,7 +127,12 @@ function onSubmit() {
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn style="width: 80px" label="취소" flat @click="onDialogCancel" />
+          <q-btn
+            style="width: 80px"
+            label="취소"
+            flat
+            @click="onDialogCancel"
+          />
           <q-btn
             style="width: 80px"
             label="확인"
