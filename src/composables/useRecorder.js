@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const contentTypes = [
   'video/webm',
@@ -29,6 +29,16 @@ const supportedTypes = ref([])
 const format = ref('video/webm;codecs=vp9')
 const quality = ref(2500000)
 const recState = ref('')
+const recTime = ref(0)
+const recTimeString = computed(() => {
+  let hours, minutes, seconds
+  hours = parseInt(recTime.value / 3600)
+  minutes = parseInt((recTime.value % 3600) / 60)
+  seconds = parseInt(recTime.value % 60)
+  return `${hours < 10 ? '0' + hours : hours}:${
+    minutes < 10 ? '0' + minutes : minutes
+  }:${seconds < 10 ? '0' + seconds : seconds}`
+})
 
 function checkSupportedTypes() {
   supportedTypes.value = []
@@ -49,28 +59,29 @@ function setRecorder(stream) {
     videoBitsPerSecond: quality.value
   })
 
-  this.recorder.ondataavailable = async (d) => {
+  recorder.value.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
+    recTime.value = recTime.value + 0.5
   }
 
-  this.recorder.onerror = (e) => {
+  recorder.value.onerror = (e) => {
     updateRecorderState()
     console.error(`error recording stream: ${e.error.name}`)
   }
 
-  this.recorder.onpause = (e) => {
+  recorder.value.onpause = (e) => {
     updateRecorderState()
   }
 
-  this.recorder.onresume = (e) => {
+  recorder.value.onresume = (e) => {
     updateRecorderState()
   }
 
-  this.recorder.onstart = (e) => {
+  recorder.value.onstart = (e) => {
     updateRecorderState()
   }
 
-  this.recorder.onstop = (e) => {
+  recorder.value.onstop = (e) => {
     updateRecorderState()
   }
   updateRecorderState()
@@ -81,6 +92,7 @@ function updateRecorderState() {
 }
 
 function recStart() {
+  recTime.value = 0
   API.send('rec:start')
   recorder.value.start(500)
 }
@@ -101,5 +113,6 @@ export {
   setRecorder,
   updateRecorderState,
   recStart,
-  recStop
+  recStop,
+  recTimeString
 }

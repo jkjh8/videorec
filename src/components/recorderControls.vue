@@ -1,119 +1,89 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useQuasar, format } from 'quasar'
-import {
-  showTime,
-  toggleStart,
-  fnStop
-} from 'src/composables/useStopWatch'
-import {
-  video,
-  audioMute,
-  setVideo,
-  setAudioMute
-} from 'src/composables/useVideo'
+import { ref, onMounted, computed } from "vue";
+import { useQuasar, format } from "quasar";
+import { video, audioMute, setVideo, setAudioMute } from "src/composables/useVideo";
 import {
   meterL,
   meterR,
   initAudio,
   peakL,
-  peakR
-} from 'src/composables/useAudio'
-import { disk, folder, error } from 'src/composables/useStatus'
-import {
-  stream,
-  startStream,
-  stopStream
-} from 'src/composables/useStream'
+  peakR,
+  meterWidth as width,
+} from "src/composables/useAudio";
+import { disk, folder, error } from "src/composables/useStatus";
+import { stream, startStream, stopStream } from "src/composables/useStream";
 import {
   setRecorder,
   recStart,
   recStop,
-  recState
-} from 'src/composables/useRecorder'
+  recState,
+  recTimeString,
+} from "src/composables/useRecorder";
 
-import SetupDialog from 'components/dialogs/setupDialog.vue'
-import TooltipBtn from 'components/tooltipBtn'
-import TooltipUp from 'components/tooltipUp'
+import AudioMeter from "components/audioMeter.vue";
+import SetupDialog from "components/dialogs/setupDialog.vue";
+import TooltipBtn from "components/tooltipBtn";
+import TooltipUp from "components/tooltipUp";
 
-const { humanStorageSize } = format
-const $q = useQuasar()
-const width = ref(window.innerWidth - 10)
+const { humanStorageSize } = format;
+const $q = useQuasar();
 
 function playStop() {
-  if (recState !== 'recording') {
-    recStart()
-    toggleStart()
+  if (recState.value !== "recording") {
+    recStart();
   } else {
-    recStop()
-    fnStop()
+    recStop();
   }
 }
 
 function openSetup() {
   $q.dialog({
-    component: SetupDialog
+    component: SetupDialog,
   }).onOk(async (items) => {
-    $q.loading.show()
+    $q.loading.show();
     try {
-      await API.send('setup:update', items)
-      await stopStream()
-      await startStream()
-      setVideo(stream)
-      setRecorder(stream)
-      initAudio(stream)
-      $q.loading.hide()
+      error.value = "";
+      await API.send("setup:update", items);
+      await stopStream();
+      await startStream();
+      setVideo(stream.value);
+      setRecorder(stream.value);
+      initAudio(stream.value);
+      $q.loading.hide();
     } catch (err) {
-      $q.loading.hide()
-      console.error(err)
+      $q.loading.hide();
+      console.error(err);
     }
-  })
+  });
 }
 
 async function selFolder() {
-  const r = await API.send('status:selfolder')
+  const r = await API.send("status:selfolder");
   if (r) {
-    folder.value = r
+    folder.value = r;
   }
 }
 
 function openFinder() {
-  API.send('status:openfinder', folder.value)
+  API.send("status:openfinder", folder.value);
 }
 
 onMounted(() => {
-  window.addEventListener('resize', () => {
-    width.value = window.innerWidth - 10
-    API.send('status:resize', video.value.clientHeight)
-  })
-})
+  window.addEventListener("resize", () => {
+    width.value = window.innerWidth - 10;
+    API.send("status:resize", video.value.clientHeight);
+  });
+});
 </script>
 
 <template>
-  <div class="flex">
-    <div class="row no-wrap">
-      <canvas ref="meterL" class="meter" height="5" :width="width" />
-      <div
-        :class="peakL ? 'bg-red' : 'meter'"
-        style="width: 10px; height: 5px"
-      ></div>
-    </div>
-    <div class="row no-wrap">
-      <canvas ref="meterR" class="meter" height="5" :width="width" />
-      <div
-        :class="peakR ? 'bg-red' : 'meter'"
-        style="width: 10px; height: 5px"
-      ></div>
-    </div>
-  </div>
+  <AudioMeter />
   <div class="row justify-between items-center control-box">
     <!-- timer -->
     <div>
-      <div class="text-h3">{{ showTime }}</div>
+      <div class="text-h3">{{ recTimeString }}</div>
       <div v-if="disk">
-        <q-linear-progress
-          :value="(disk.size - disk.free) / disk.size"
-        />
+        <q-linear-progress :value="(disk.size - disk.free) / disk.size" />
         <div class="row justify-between items-center">
           <div>{{ humanStorageSize(disk.size - disk.free) }}</div>
           <div>{{ humanStorageSize(disk.size) }}</div>
@@ -127,29 +97,18 @@ onMounted(() => {
       class="btn-center"
       round
       color="red"
-      :icon="
-        recState !== 'recording' ? 'fiber_manual_record' : 'stop'
-      "
+      :icon="recState !== 'recording' ? 'fiber_manual_record' : 'stop'"
       size="lg"
       @click="playStop"
     >
-      <TooltipUp
-        :msg="recState !== 'recording' ? 'Recording' : 'Stop'"
-      />
+      <TooltipUp :msg="recState !== 'recording' ? 'Recording' : 'Stop'" />
     </q-btn>
 
     <!-- Controls -->
     <div>
       <div class="cursor row justify-end" @click="openFinder">
         {{ folder }}
-        <q-tooltip
-          style="background: rgba(0, 0, 0, 0.8)"
-          anchor="top middle"
-          self="bottom middle"
-          :offset="[10, 10]"
-        >
-          Open Folder
-        </q-tooltip>
+        <TooltipUp msg="Oprn Folder" />
       </div>
       <div class="q-gutter-x-sm row justify-end">
         <TooltipBtn

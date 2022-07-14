@@ -1,7 +1,5 @@
 <script setup>
-import { useQuasar, useDialogPluginComponent } from 'quasar'
-import { useRecorderStore } from 'src/stores/recorderStore'
-import { useStreamStore } from 'src/stores/streamStore'
+import { useQuasar, useDialogPluginComponent } from "quasar";
 
 import {
   getDevices,
@@ -10,42 +8,39 @@ import {
   audioDevices,
   audioDevice,
   resolutions,
-  resolution
-} from 'src/composables/useStream'
+  resolution,
+} from "src/composables/useStream";
 
 import {
   checkSupportedTypes,
   supportedTypes,
   format,
   qualitys,
-  quality
-} from 'src/composables/useRecorder'
+  quality,
+} from "src/composables/useRecorder";
 
-const $stream = useStreamStore()
-const $rec = useRecorderStore()
-const $q = useQuasar()
+const $q = useQuasar();
 
-const emit = defineEmits([...useDialogPluginComponent.emits])
-const { dialogRef, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
+const emit = defineEmits([...useDialogPluginComponent.emits]);
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
 function refresh() {
-  getDevices()
-  checkSupportedTypes()
+  getDevices();
+  checkSupportedTypes();
 }
 
 function onSubmit() {
   onDialogOK([
-    { key: 'format', value: format.value },
-    { key: 'videodeivce', value: videoDevice.value },
-    { key: 'audiodevice', value: audioDevice.value },
-    { key: 'quality', value: quality.value },
+    { key: "format", value: format.value },
+    { key: "videodeivce", value: videoDevice.value },
+    { key: "audiodevice", value: audioDevice.value },
+    { key: "quality", value: quality.value },
     {
-      key: 'resolution',
+      key: "resolution",
       value:
-        typeof resolution === 'string' ? resolution : { resolution }
-    }
-  ])
+        typeof resolution.value === "string" ? resolution.value : { ...resolution.value },
+    },
+  ]);
 }
 </script>
 
@@ -127,12 +122,7 @@ function onSubmit() {
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn
-            style="width: 80px"
-            label="취소"
-            flat
-            @click="onDialogCancel"
-          />
+          <q-btn style="width: 80px" label="취소" flat @click="onDialogCancel" />
           <q-btn
             style="width: 80px"
             label="확인"

@@ -1,67 +1,50 @@
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue'
-import { useQuasar } from 'quasar'
+import { ref, onMounted, onBeforeMount } from "vue";
+import { useQuasar } from "quasar";
 // import { useRecorderStore } from 'src/stores/recorderStore'
 // import { useStreamStore } from 'src/stores/streamStore'
 import {
   stream,
   getDevices,
   startStream,
-  changeDevices
-} from 'src/composables/useStream'
-import {
-  checkSupportedTypes,
-  setRecorder
-} from 'src/composables/useRecorder'
-import { initAudio } from 'src/composables/useAudio'
-import {
-  video,
-  audioMute,
-  setVideo,
-  windowResize
-} from 'src/composables/useVideo'
-import {
-  disk,
-  error,
-  folder,
-  APIHandler,
-  getSetup
-} from 'src/composables/useStatus'
+  changeDevices,
+} from "src/composables/useStream";
+import { checkSupportedTypes, setRecorder } from "src/composables/useRecorder";
+import { initAudio } from "src/composables/useAudio";
+import { video, audioMute, setVideo, windowResize } from "src/composables/useVideo";
+import { disk, error, folder, APIHandler, getSetup } from "src/composables/useStatus";
 
-const $q = useQuasar()
+const $q = useQuasar();
 
 onMounted(async () => {
-  $q.loading.show()
+  $q.loading.show();
   try {
-    checkSupportedTypes()
-    await getDevices()
-    await startStream()
-    setVideo(stream)
-    setRecorder(stream)
-    initAudio(stream)
-    $q.loading.hide()
+    error.value = "";
+    checkSupportedTypes();
+    await getDevices();
+    await startStream();
+    setVideo(stream.value);
+    setRecorder(stream.value);
+    initAudio(stream.value);
+    $q.loading.hide();
   } catch (err) {
-    $q.loading.hide()
-    console.log(err)
-    error.value = err.name
+    $q.loading.hide();
+    console.log(err);
+    error.value = err.name;
   }
-})
+});
 
 onBeforeMount(async () => {
-  changeDevices()
-  APIHandler()
-  getSetup()
-})
+  changeDevices();
+  APIHandler();
+  getSetup();
+});
 </script>
 
 <template>
   <div class="q-gutter-y-md" style="padding: 10px 10px 10px 10px">
     <div class="row justify-center">
-      <video
-        ref="video"
-        class="video"
-        @loadedmetadata="windowResize"
-      />
+      <video ref="video" class="video" @loadedmetadata="windowResize" />
     </div>
   </div>
 

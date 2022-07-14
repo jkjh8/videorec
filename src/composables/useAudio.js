@@ -7,12 +7,11 @@ const ac = new AudioContext(),
   levelL = ref(0),
   levelR = ref(0),
   peakL = ref(false),
-  peakR = ref(false)
+  peakR = ref(false),
+  meterWidth = ref(window.innerWidth - 10)
 
 let smoothLevelL = 0,
   smoothLevelR = 0,
-  canvasMeterL = 0,
-  canvasMeterR = 0,
   meterDataL,
   meterDataR,
   ctxL,
@@ -36,8 +35,6 @@ function initAudio(stream) {
     spliter.connect(analyserL, 0)
     spliter.connect(analyserR, 1)
 
-    analyserL.fftSize = 32
-    analyserR.fftSize = 32
     meterDataL = new Float32Array(analyserL.fftSize)
     meterDataR = new Float32Array(analyserR.fftSize)
 
@@ -70,15 +67,6 @@ function drawMeter() {
       levelR.value = Math.max(powerR, meterDataR[i])
     }
 
-    // for (let i = 0; i < meterDataL.length; i++) {
-    //   if (levelL.value < Math.abs(meterDataL[i])) {
-    //     levelL.value = Math.abs(meterDataL[i])
-    //   }
-    //   if (levelR.value < Math.abs(meterDataR[i])) {
-    //     levelR.value = Math.abs(meterDataR[i])
-    //   }
-    // }
-
     if (10 * Math.log10(levelL.value) > -2) {
       if (peakIntervalL) {
         clearTimeout(peakIntervalL)
@@ -92,30 +80,26 @@ function drawMeter() {
       }
       setPeak('R')
     }
-    ctxL.fillStyle = '#1976d2'
-    ctxR.fillStyle = '#1976d2'
 
     smoothLevelL = 0.9 * smoothLevelL + 0.1 * levelL.value
     smoothLevelR = 0.9 * smoothLevelR + 0.1 * levelR.value
     levelDbL = 10 * Math.log10(smoothLevelL)
     levelDbR = 10 * Math.log10(smoothLevelR)
-    // canvasMeterL = meterL.value.width * smoothLevelL
-    // canvasMeterR = meterR.value.width * smoothLevelR
 
-    // if (smoothLevelL > 0.9) {
-    //   ctxL.fillStyle = '#1976d2'
-    // } else if (smoothLevelL <= 0.9 && smoothLevelL > 0.7) {
-    //   ctxL.fillStyle = 'yellow'
-    // } else {
-    //   ctxL.fillStyle = '#1976d2'
-    // }
-    // if (smoothLevelR > 0.9) {
-    //   ctxR.fillStyle = '#1976d2'
-    // } else if (smoothLevelR <= 0.9 && smoothLevelR > 0.7) {
-    //   ctxR.fillStyle = 'yellow'
-    // } else {
-    //   ctxR.fillStyle = '#1976d2'
-    // }
+    if (smoothLevelL > -3) {
+      ctxL.fillStyle = '#1976d2'
+    } else if (smoothLevelL <= -3 && smoothLevelL > -6) {
+      ctxL.fillStyle = 'yellow'
+    } else {
+      ctxL.fillStyle = '#1976d2'
+    }
+    if (smoothLevelR > -3) {
+      ctxR.fillStyle = '#1976d2'
+    } else if (smoothLevelR <= -3 && smoothLevelR > -6) {
+      ctxR.fillStyle = 'yellow'
+    } else {
+      ctxR.fillStyle = '#1976d2'
+    }
 
     // canvasMeterL = meterL.value.width * levelL.value
     // canvasMeterR = meterR.value.width * levelR.value
@@ -150,4 +134,13 @@ function setPeak(ch) {
     }, 1000)
   }
 }
-export { meterL, meterR, levelL, levelR, peakL, peakR, initAudio }
+export {
+  meterL,
+  meterR,
+  levelL,
+  levelR,
+  peakL,
+  peakR,
+  initAudio,
+  meterWidth
+}

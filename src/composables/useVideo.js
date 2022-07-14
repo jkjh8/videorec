@@ -7,6 +7,7 @@ function setVideo(stream) {
   if (!video.value.paused) {
     video.value.pause()
   }
+  console.log(stream)
   video.value.srcObject = stream
   video.value.load()
   video.value.play()

@@ -97,5 +97,5 @@ ipcMain.handle('status:openfinder', (e, path) => {
 
 ipcMain.handle('status:resize', (e, hi) => {
   const currentSize = BrowserWindow.fromId(1).getSize()
-  BrowserWindow.fromId(1).setSize(currentSize[0], hi + 100)
+  BrowserWindow.fromId(1).setSize(currentSize[0], hi + 160)
 })
