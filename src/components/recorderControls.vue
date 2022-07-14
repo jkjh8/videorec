@@ -1,6 +1,6 @@
 <script setup>
 import { useQuasar, format } from "quasar";
-
+import { audioMute, setAudioMute } from "src/composables/useVideo";
 import { disk, folder, error } from "src/composables/useStatus";
 import { stream, startStream, stopStream } from "src/composables/useStream";
 import {
