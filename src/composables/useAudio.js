@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { stream } from './useStream'
 
 const ac = new AudioContext(),
   source = ref(null),
@@ -23,9 +24,9 @@ let smoothLevelL = 0,
   levelDbL,
   levelDbR
 
-function initAudio(stream) {
+function setAudioMeter() {
   try {
-    source.value = ac.createMediaStreamSource(stream)
+    source.value = ac.createMediaStreamSource(stream.value)
     analyserL = ac.createAnalyser()
     analyserR = ac.createAnalyser()
 
@@ -101,9 +102,6 @@ function drawMeter() {
       ctxR.fillStyle = '#1976d2'
     }
 
-    // canvasMeterL = meterL.value.width * levelL.value
-    // canvasMeterR = meterR.value.width * levelR.value
-
     ctxL.fillRect(
       0,
       0,
@@ -134,6 +132,10 @@ function setPeak(ch) {
     }, 1000)
   }
 }
+
+function setMeterWidth() {
+  meterWidth.value = window.innerWidth - 10
+}
 export {
   meterL,
   meterR,
@@ -141,6 +143,7 @@ export {
   levelR,
   peakL,
   peakR,
-  initAudio,
-  meterWidth
+  setAudioMeter,
+  meterWidth,
+  setMeterWidth
 }

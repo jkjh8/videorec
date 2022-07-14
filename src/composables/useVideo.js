@@ -1,14 +1,14 @@
 import { ref } from 'vue'
+import { stream } from './useStream'
 
 const video = ref(null)
 const audioMute = ref(false)
 
-function setVideo(stream) {
+function setVideo() {
   if (!video.value.paused) {
     video.value.pause()
   }
-  console.log(stream)
-  video.value.srcObject = stream
+  video.value.srcObject = stream.value
   video.value.load()
   video.value.play()
   video.value.muted = audioMute.value

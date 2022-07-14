@@ -1,19 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
 import { useQuasar, format } from "quasar";
-import { video, audioMute, setVideo, setAudioMute } from "src/composables/useVideo";
-import {
-  meterL,
-  meterR,
-  initAudio,
-  peakL,
-  peakR,
-  meterWidth as width,
-} from "src/composables/useAudio";
+
 import { disk, folder, error } from "src/composables/useStatus";
 import { stream, startStream, stopStream } from "src/composables/useStream";
 import {
-  setRecorder,
+  setStreamRecorder,
   recStart,
   recStop,
   recState,
@@ -44,11 +35,7 @@ function openSetup() {
     try {
       error.value = "";
       await API.send("setup:update", items);
-      await stopStream();
-      await startStream();
-      setVideo(stream.value);
-      setRecorder(stream.value);
-      initAudio(stream.value);
+      await setStreamRecorder();
       $q.loading.hide();
     } catch (err) {
       $q.loading.hide();
@@ -67,13 +54,6 @@ async function selFolder() {
 function openFinder() {
   API.send("status:openfinder", folder.value);
 }
-
-onMounted(() => {
-  window.addEventListener("resize", () => {
-    width.value = window.innerWidth - 10;
-    API.send("status:resize", video.value.clientHeight);
-  });
-});
 </script>
 
 <template>

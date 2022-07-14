@@ -1,4 +1,7 @@
 import { ref, computed } from 'vue'
+import { stream, startStream, stopStream } from './useStream'
+import { setAudioMeter } from './useAudio'
+import { setVideo } from './useVideo'
 
 const contentTypes = [
   'video/webm',
@@ -31,13 +34,13 @@ const quality = ref(2500000)
 const recState = ref('')
 const recTime = ref(0)
 const recTimeString = computed(() => {
-  let hours, minutes, seconds
-  hours = parseInt(recTime.value / 3600)
-  minutes = parseInt((recTime.value % 3600) / 60)
-  seconds = parseInt(recTime.value % 60)
-  return `${hours < 10 ? '0' + hours : hours}:${
-    minutes < 10 ? '0' + minutes : minutes
-  }:${seconds < 10 ? '0' + seconds : seconds}`
+  return `${parseInt(recTime.value) / 3600 < 10 ? '0' : ''}${
+    parseInt(recTime.value) / 3600
+  }:${parseInt(recTime.value / 3600 / 60) < 10 ? '0' : ''}${parseInt(
+    recTime.value / 3600 / 60
+  )}:${parseInt(recTime.value % 60) < 10 ? '0' : ''}${parseInt(
+    recTime.value % 60
+  )}`
 })
 
 function checkSupportedTypes() {
@@ -55,13 +58,13 @@ function checkSupportedTypes() {
 }
 
 function setRecorder(stream) {
-  recorder.value = new MediaRecorder(stream, {
+  recorder.value = new MediaRecorder(stream.value, {
     videoBitsPerSecond: quality.value
   })
 
   recorder.value.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
-    recTime.value = recTime.value + 0.5
+    recTime.value = recTime.value + 0.1
   }
 
   recorder.value.onerror = (e) => {
@@ -94,12 +97,26 @@ function updateRecorderState() {
 function recStart() {
   recTime.value = 0
   API.send('rec:start')
-  recorder.value.start(500)
+  recorder.value.start(100)
 }
 
 function recStop() {
   recorder.value.stop()
   API.send('rec:stop')
+}
+
+async function setStreamRecorder() {
+  try {
+    if (stream.value) {
+      await stopStream()
+    }
+    await startStream()
+    setRecorder()
+    setVideo()
+    setAudioMeter()
+  } catch (err) {
+    throw err
+  }
 }
 
 export {
@@ -114,5 +131,6 @@ export {
   updateRecorderState,
   recStart,
   recStop,
-  recTimeString
+  recTimeString,
+  setStreamRecorder
 }

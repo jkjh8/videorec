@@ -1,31 +1,26 @@
 <script setup>
-import { ref, onMounted, onBeforeMount } from "vue";
+import { onMounted, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
-// import { useRecorderStore } from 'src/stores/recorderStore'
-// import { useStreamStore } from 'src/stores/streamStore'
-import {
-  stream,
-  getDevices,
-  startStream,
-  changeDevices,
-} from "src/composables/useStream";
-import { checkSupportedTypes, setRecorder } from "src/composables/useRecorder";
-import { initAudio } from "src/composables/useAudio";
-import { video, audioMute, setVideo, windowResize } from "src/composables/useVideo";
-import { disk, error, folder, APIHandler, getSetup } from "src/composables/useStatus";
+import { getDevices, changeDevices } from "src/composables/useStream";
+import { checkSupportedTypes, setStreamRecorder } from "src/composables/useRecorder";
+import { video, windowResize } from "src/composables/useVideo";
+import { setMeterWidth } from "src/composables/useAudio";
+import { error, APIHandler, getSetup } from "src/composables/useStatus";
 
 const $q = useQuasar();
 
 onMounted(async () => {
+  window.addEventListener("resize", () => {
+    setMeterWidth();
+    windowResize();
+  });
+
   $q.loading.show();
   try {
     error.value = "";
     checkSupportedTypes();
     await getDevices();
-    await startStream();
-    setVideo(stream.value);
-    setRecorder(stream.value);
-    initAudio(stream.value);
+    await setStreamRecorder();
     $q.loading.hide();
   } catch (err) {
     $q.loading.hide();

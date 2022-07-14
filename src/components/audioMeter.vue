@@ -2,7 +2,6 @@
 import {
   meterL,
   meterR,
-  initAudio,
   peakL,
   peakR,
   meterWidth as width,
