@@ -60,6 +60,17 @@ async function getSetup() {
   })
 }
 
+async function selFolder() {
+  const f = await API.send('status:selFolder')
+  if (f) {
+    folder.value = f
+  }
+}
+
+async function openFolder() {
+  API.send('status:openFolder', folder.value)
+}
+
 export {
   disk,
   error,
@@ -67,5 +78,7 @@ export {
   startDiskChkTimer,
   stopDiskChkTimer,
   APIHandler,
-  getSetup
+  getSetup,
+  selFolder,
+  openFolder
 }

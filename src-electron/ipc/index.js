@@ -87,7 +87,7 @@ ipcMain.handle('status:getfolder', async () => {
   return homePath
 })
 
-ipcMain.handle('status:openfinder', (e, path) => {
+ipcMain.handle('status:openFolder', (e, path) => {
   if (fs.existsSync(path)) {
     return shell.openPath(path)
   }

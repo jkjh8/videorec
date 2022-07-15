@@ -1,7 +1,7 @@
 <script setup>
 import { useQuasar, format } from "quasar";
 import { audioMute, setAudioMute } from "src/composables/useVideo";
-import { disk, folder, error } from "src/composables/useStatus";
+import { disk, folder, error, selFolder, openFolder } from "src/composables/useStatus";
 import { stream, startStream, stopStream } from "src/composables/useStream";
 import {
   setStreamRecorder,
@@ -43,17 +43,6 @@ function openSetup() {
     }
   });
 }
-
-async function selFolder() {
-  const r = await API.send("status:selfolder");
-  if (r) {
-    folder.value = r;
-  }
-}
-
-function openFinder() {
-  API.send("status:openfinder", folder.value);
-}
 </script>
 
 <template>
@@ -86,7 +75,7 @@ function openFinder() {
 
     <!-- Controls -->
     <div>
-      <div class="cursor row justify-end" @click="openFinder">
+      <div class="cursor row justify-end" @click="openFolder">
         {{ folder }}
         <TooltipUp msg="Oprn Folder" />
       </div>
