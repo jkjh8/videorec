@@ -6,35 +6,12 @@ import moment from 'moment'
 import disk from 'check-disk-space'
 import db from '../db'
 
-let writeFileStream
+import './recorder'
 const homePath = app.getPath('home')
 
-ipcMain.handle('rec:start', async (e, args) => {
-  let filePath
-  const r = await db.setup.findOne({ key: 'folder' })
-  if (r && r.value && fs.existsSync(r.value)) {
-    filePath = path.join(
-      r.value,
-      `${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.webm`
-    )
-  } else {
-    BrowserWindow.fromId(1).send('status:folder', homePath)
-    filePath = path.join(
-      homePath,
-      `${moment().format('YYYY-MM-DD_hh:mm:ss_a')}.webm`
-    )
-  }
-  writeFileStream = fs.createWriteStream(filePath)
-  writeFileStream.on('finish', () => {})
-})
-
-ipcMain.handle('rec:data', async (e, buffer) => {
-  writeFileStream.write(Buffer.from(buffer))
-})
-
-ipcMain.handle('rec:stop', async (e, args) => {
-  writeFileStream.end()
-})
+let diskUseageInterval = setInterval(async () => {
+  getDiskUseage()
+}, 60000)
 
 ipcMain.handle('setup:update', async (e, items) => {
   for (let i = 0; i < items.length; i++) {
@@ -49,6 +26,7 @@ ipcMain.handle('setup:update', async (e, items) => {
 })
 
 ipcMain.handle('setup:get', async () => {
+  getDiskUseage()
   return await db.setup.find({})
 })
 
@@ -59,7 +37,25 @@ ipcMain.handle('status:getdisk', async (e, path) => {
   return await disk(homePath)
 })
 
-ipcMain.handle('status:selfolder', async () => {
+async function getDiskUseage() {
+  try {
+    let diskUseage
+    const d = await db.setup.findOne({ key: 'folder' })
+    if (d && d.value) {
+      diskUseage = await disk(d.value)
+    } else {
+      diskUseage = await disk(homePath)
+    }
+    BrowserWindow.fromId(1).webContents.send('status:state', {
+      key: 'disk',
+      value: await disk(homePath)
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+ipcMain.handle('status:selFolder', async () => {
   const path = dialog.showOpenDialogSync({
     title: 'Select Folder',
     defaultPath: app.getPath('home'),
@@ -99,3 +95,5 @@ ipcMain.handle('status:resize', (e, hi) => {
   const currentSize = BrowserWindow.fromId(1).getSize()
   BrowserWindow.fromId(1).setSize(currentSize[0], hi + 160)
 })
+
+export { homePath }

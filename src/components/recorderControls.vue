@@ -5,10 +5,9 @@ import { disk, folder, error, selFolder, openFolder } from "src/composables/useS
 import { stream, startStream, stopStream } from "src/composables/useStream";
 import {
   setStreamRecorder,
-  recStart,
-  recStop,
   recState,
   recTimeString,
+  recStartStop,
 } from "src/composables/useRecorder";
 
 import AudioMeter from "components/audioMeter.vue";
@@ -18,14 +17,6 @@ import TooltipUp from "components/tooltipUp";
 
 const { humanStorageSize } = format;
 const $q = useQuasar();
-
-function playStop() {
-  if (recState.value !== "recording") {
-    recStart();
-  } else {
-    recStop();
-  }
-}
 
 function openSetup() {
   $q.dialog({
@@ -68,7 +59,7 @@ function openSetup() {
       color="red"
       :icon="recState !== 'recording' ? 'fiber_manual_record' : 'stop'"
       size="lg"
-      @click="playStop"
+      @click="recStartStop"
     >
       <TooltipUp :msg="recState !== 'recording' ? 'Recording' : 'Stop'" />
     </q-btn>

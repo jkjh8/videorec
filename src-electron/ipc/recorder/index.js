@@ -1,0 +1,85 @@
+import { app, BrowserWindow, ipcMain } from 'electron'
+import fs from 'node:fs'
+import path from 'node:path'
+import moment from 'moment'
+import db from '../../db'
+import { homePath } from '../index'
+
+let writeFileStream
+
+function checkPath(d) {
+  const mainWindow = BrowserWindow.fromId(1)
+  let current = fs.existsSync(d) ? d : homePath
+  mainWindow.webContents.send('status:folder', current)
+  return current
+}
+
+async function getPath() {
+  const mainWindow = BrowserWindow.fromId(1)
+  const r = await db.setup.findOne({ key: 'folder' })
+  if (r && r.value && fs.existsSync(r.value)) {
+    mainWindow.webContents.send('status:folder', r.value)
+    return r.value
+  }
+  await db.setup.update(
+    { key: 'folder' },
+    { $set: { value: homePath } },
+    { upsert: true }
+  )
+  mainWindow.webContents.send('status:folder', homePath)
+  return homePath
+}
+
+function makeFileName(format) {
+  const name = moment().format('YYYY-MM-DD_HH:mm:ss_a')
+  let ext
+
+  switch (format) {
+    case 'video/ogg':
+      ext = 'ogg'
+      break
+    case 'video/mkv':
+      ext = 'mkv'
+      break
+    case 'video/mp4':
+      ext = 'mp4'
+      break
+    case 'video/quicktime':
+      ext = 'mov'
+      break
+    default:
+      ext = 'webm'
+      break
+  }
+  return `${name}.${ext}`
+}
+
+ipcMain.handle('rec:start', async (e, args) => {
+  try {
+    const { format } = args
+    const file = path.join(await getPath(), makeFileName(format))
+    writeFileStream = fs.createWriteStream(file)
+    console.log('make file stream - ', file)
+    // finish event
+    writeFileStream.on('finish', () => {
+      console.log('file write finish')
+    })
+    return null
+  } catch (err) {
+    console.error(err)
+    return err
+  }
+})
+
+ipcMain.handle('rec:data', async (e, buffer) => {
+  try {
+    writeFileStream.write(Buffer.from(buffer))
+  } catch (err) {
+    console.error(err)
+  }
+})
+
+ipcMain.handle('rec:stop', () => {
+  writeFileStream.end()
+  console.log('file write end')
+})

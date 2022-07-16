@@ -59,6 +59,7 @@ function checkSupportedTypes() {
 
 function setRecorder(stream) {
   recorder.value = new MediaRecorder(stream.value, {
+    mimeType: format,
     videoBitsPerSecond: quality.value
   })
 
@@ -96,7 +97,7 @@ function updateRecorderState() {
 
 function recStart() {
   recTime.value = 0
-  API.send('rec:start')
+  API.send('rec:start', { format, quality })
   recorder.value.start(100)
 }
 
@@ -119,6 +120,14 @@ async function setStreamRecorder() {
   }
 }
 
+function recStartStop() {
+  if (recState.value !== 'recording') {
+    recStart()
+  } else {
+    recStop()
+  }
+}
+
 export {
   recorder,
   format,
@@ -132,5 +141,6 @@ export {
   recStart,
   recStop,
   recTimeString,
-  setStreamRecorder
+  setStreamRecorder,
+  recStartStop
 }

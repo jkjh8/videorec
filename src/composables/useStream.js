@@ -57,9 +57,8 @@ async function getDevices() {
           break
       }
     }
-    return null
   } catch (err) {
-    return 'err.name'
+    throw err
   }
 }
 
@@ -75,8 +74,8 @@ function stopStream() {
         }
       }
       resolve()
-    } catch (error) {
-      reject(error)
+    } catch (err) {
+      reject(err)
     }
   })
 }
