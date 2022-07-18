@@ -9,7 +9,10 @@ import menu from './menu'
 const platform = process.platform || os.platform()
 
 try {
-  if (platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
+  if (
+    platform === 'win32' &&
+    nativeTheme.shouldUseDarkColors === true
+  ) {
     require('fs').unlinkSync(
       path.join(app.getPath('userData'), 'DevTools Extensions')
     )
@@ -30,12 +33,15 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       // More info: https://v2.quasar.dev/quasar-cli-webpack/developing-electron-apps/electron-preload-script
-      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD)
+      preload: path.resolve(
+        __dirname,
+        process.env.QUASAR_ELECTRON_PRELOAD
+      )
     }
   })
 
   mainWindow.loadURL(process.env.APP_URL)
-  // Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(menu)
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
