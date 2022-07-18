@@ -6,6 +6,7 @@ import { checkSupportedTypes, setStreamRecorder } from "src/composables/useRecor
 import { video, windowResize } from "src/composables/useVideo";
 import { setMeterWidth } from "src/composables/useAudio";
 import { error, APIHandler, getSetup } from "src/composables/useStatus";
+import About from "components/dialogs/aboutDialog";
 
 const $q = useQuasar();
 
@@ -13,6 +14,12 @@ onMounted(async () => {
   window.addEventListener("resize", () => {
     setMeterWidth();
     windowResize();
+  });
+
+  API.handle("menu:about", () => {
+    $q.dialog({
+      component: About,
+    });
   });
 
   $q.loading.show();

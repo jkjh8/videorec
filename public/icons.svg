@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" style="height: 0; width: 0; position: absolute; visibility: hidden">
+  <symbol id="logo" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <polyline points="2,16 2,4 10,10 18,4 18,16" fill="none" stroke="#2E4053" />
+    <polyline points="16,16 16,8 8,16 16,16" fill="#154360" />
+    <polyline points="4,16 4,8 10,12" fill="#138D75" />
+  </symbol>
+</svg>

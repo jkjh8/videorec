@@ -1,16 +1,32 @@
-import { app, Menu } from 'electron'
+import { app, Menu, BrowserWindow } from 'electron'
 const template = []
 if (process.platform === 'win32') {
-  template.unshift({
-    label: 'File',
-    submenu: [
-      {
-        label: 'Close',
-        accelerator: 'alt+F4',
-        role: 'close'
-      }
-    ]
-  })
+  template.unshift(
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Close',
+          accelerator: 'alt+F4',
+          role: 'close'
+        }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About',
+          accelerator: 'F1',
+          click: () => {
+            return BrowserWindow.fromId(1).webContents.send(
+              'menu:about'
+            )
+          }
+        }
+      ]
+    }
+  )
 }
 
 if (process.platform === 'darwin') {
