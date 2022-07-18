@@ -9,6 +9,8 @@ const ac = new AudioContext(),
   levelR = ref(0),
   peakL = ref(false),
   peakR = ref(false),
+  levelDbL = ref(0),
+  levelDbR = ref(0),
   meterWidth = ref(window.innerWidth - 10)
 
 let smoothLevelL = 0,
@@ -20,9 +22,7 @@ let smoothLevelL = 0,
   analyserL,
   analyserR,
   peakIntervalL,
-  peakIntervalR,
-  levelDbL,
-  levelDbR
+  peakIntervalR
 
 function setAudioMeter() {
   try {
@@ -84,8 +84,8 @@ function drawMeter() {
 
     smoothLevelL = 0.9 * smoothLevelL + 0.1 * levelL.value
     smoothLevelR = 0.9 * smoothLevelR + 0.1 * levelR.value
-    levelDbL = 10 * Math.log10(smoothLevelL)
-    levelDbR = 10 * Math.log10(smoothLevelR)
+    levelDbL.value = 10 * Math.log10(smoothLevelL)
+    levelDbR.value = 10 * Math.log10(smoothLevelR)
 
     if (smoothLevelL > -3) {
       ctxL.fillStyle = '#1976d2'
@@ -105,13 +105,15 @@ function drawMeter() {
     ctxL.fillRect(
       0,
       0,
-      meterL.value.width + (meterL.value.width / 100) * levelDbL,
+      meterL.value.width +
+        (meterL.value.width / 100) * levelDbL.value,
       meterL.value.height
     )
     ctxR.fillRect(
       0,
       0,
-      meterR.value.width + (meterR.value.width / 100) * levelDbR,
+      meterR.value.width +
+        (meterR.value.width / 100) * levelDbR.value,
       meterR.value.height
     )
   } catch (err) {
@@ -143,6 +145,8 @@ export {
   levelR,
   peakL,
   peakR,
+  levelDbL,
+  levelDbR,
   setAudioMeter,
   meterWidth,
   setMeterWidth
