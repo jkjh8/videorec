@@ -11,13 +11,13 @@ const quality = ref(2500000)
 const recState = ref('')
 const recTime = ref(0)
 const recTimeString = computed(() => {
-  return `${parseInt(recTime.value) / 3600 < 10 ? '0' : ''}${
-    parseInt(recTime.value) / 3600
-  }:${parseInt(recTime.value / 3600 / 60) < 10 ? '0' : ''}${parseInt(
-    recTime.value / 3600 / 60
-  )}:${parseInt(recTime.value % 60) < 10 ? '0' : ''}${parseInt(
-    recTime.value % 60
-  )}`
+  return `${parseInt(recTime.value / 3600) < 10 ? '0' : ''}${parseInt(
+    recTime.value / 3600
+  )}:${
+    parseInt((recTime.value / 3600) % 60) < 10 ? '0' : ''
+  }${parseInt((recTime.value / 3600) % 60)}:${
+    parseInt(recTime.value % 60) < 10 ? '0' : ''
+  }${parseInt(recTime.value % 60)}`
 })
 
 function checkSupportedTypes() {

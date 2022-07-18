@@ -193,7 +193,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/developing-electron-apps/configuring-electron
     electron: {
-      bundler: 'packager', // 'packager' or 'builder'
+      bundler: 'builder', // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -209,7 +209,23 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'videorec'
+        appId: 'videorec',
+        mac: {
+          target: {
+            target: 'default',
+            arch: ['x64', 'arm64']
+          }
+        },
+        win: {
+          target: {
+            target: 'nsis',
+            arch: ['x64', 'ia32']
+          }
+        },
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true
+        }
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
