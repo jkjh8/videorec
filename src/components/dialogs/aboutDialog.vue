@@ -63,15 +63,11 @@ const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent();
           <div class="caption">The MIT License (MIT)</div>
         </q-card-section>
       </q-scroll-area>
-      <q-card-actions align="right">
-        <q-btn
-          style="width: 80px"
-          label="확인"
-          color="primary"
-          unelevated
-          @click="onDialogOK"
-        />
-      </q-card-actions>
+      <q-card-section>
+        <div class="row justify-end caption">
+          Copyright (c) 2022 jkjh8(jkjh82@naver.com) All rights reserved.
+        </div>
+      </q-card-section>
     </q-card>
   </q-dialog>
 </template>
