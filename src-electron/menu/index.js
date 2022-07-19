@@ -1,32 +1,31 @@
 import { app, Menu, BrowserWindow } from 'electron'
-const template = []
+const template = [
+  {
+    label: 'Help',
+    submenu: [
+      {
+        label: 'About',
+        accelerator: 'F1',
+        click: () => {
+          return BrowserWindow.fromId(1).webContents.send(
+            'menu:about'
+          )
+        }
+      }
+    ]
+  }
+]
 if (process.platform === 'win32') {
-  template.unshift(
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Close',
-          accelerator: 'alt+F4',
-          role: 'close'
-        }
-      ]
-    },
-    {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'About',
-          accelerator: 'F1',
-          click: () => {
-            return BrowserWindow.fromId(1).webContents.send(
-              'menu:about'
-            )
-          }
-        }
-      ]
-    }
-  )
+  template.unshift({
+    label: 'File',
+    submenu: [
+      {
+        label: 'Close',
+        accelerator: 'alt+F4',
+        role: 'close'
+      }
+    ]
+  })
 }
 
 if (process.platform === 'darwin') {

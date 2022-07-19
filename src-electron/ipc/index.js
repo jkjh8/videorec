@@ -96,4 +96,8 @@ ipcMain.handle('status:resize', (e, hi) => {
   BrowserWindow.fromId(1).setSize(currentSize[0], hi + 160)
 })
 
+ipcMain.handle('status:setSize', (e, size) => {
+  BrowserWindow.fromId(1).setSize(size.width + 20, size.height + 160)
+})
+
 export { homePath }

@@ -3,12 +3,17 @@ import { onMounted, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
 import { getDevices, changeDevices } from "src/composables/useStream";
 import { checkSupportedTypes, setStreamRecorder } from "src/composables/useRecorder";
-import { video, windowResize } from "src/composables/useVideo";
+import { video, windowResize, setWindowSize } from "src/composables/useVideo";
 import { setMeterWidth } from "src/composables/useAudio";
 import { error, APIHandler, getSetup } from "src/composables/useStatus";
 import About from "components/dialogs/aboutDialog";
 
 const $q = useQuasar();
+
+function setSize() {
+  console.log("dbclick");
+  setWindowSize();
+}
 
 onMounted(async () => {
   window.addEventListener("resize", () => {
@@ -45,8 +50,13 @@ onBeforeMount(async () => {
 
 <template>
   <div class="q-gutter-y-md" style="padding: 10px 10px 10px 10px">
-    <div class="row justify-center">
-      <video ref="video" class="video" @loadedmetadata="windowResize" />
+    <div class="row justify-center" @click="setSize">
+      <video
+        ref="video"
+        class="video"
+        @loadedmetadata="windowResize"
+        @dbclick="setsize"
+      />
     </div>
   </div>
 

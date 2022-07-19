@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { stream } from './useStream'
+import { resolution } from './useStream'
 
 const video = ref(null)
 const audioMute = ref(false)
@@ -26,4 +27,16 @@ function windowResize() {
   API.send('status:resize', video.value.clientHeight)
 }
 
-export { audioMute, video, setVideo, setAudioMute, windowResize }
+function setWindowSize() {
+  if (resolution.value !== 'auto') {
+    API.send('status:setSize', { ...resolution.value })
+  }
+}
+export {
+  audioMute,
+  video,
+  setVideo,
+  setAudioMute,
+  windowResize,
+  setWindowSize
+}
