@@ -32,7 +32,7 @@ function refresh() {
 function onSubmit() {
   onDialogOK([
     { key: "format", value: format.value },
-    { key: "videodeivce", value: videoDevice.value },
+    { key: "videodevice", value: videoDevice.value },
     { key: "audiodevice", value: audioDevice.value },
     { key: "quality", value: quality.value },
     {
