@@ -27,7 +27,8 @@ ipcMain.handle('setup:update', async (e, items) => {
 })
 
 ipcMain.handle('setup:get', async () => {
-  getDiskUseage()
+  await getDiskUseage()
+  await getFolder()
   return await db.setup.find({})
 })
 
@@ -74,6 +75,10 @@ ipcMain.handle('status:selFolder', async () => {
 })
 
 ipcMain.handle('status:getfolder', async () => {
+  return await getFolder()
+})
+
+async function getFolder() {
   const r = await db.setup.findOne({ key: 'folder' })
   if (r && r.value) {
     if (fs.existsSync(r.value)) {
@@ -82,7 +87,7 @@ ipcMain.handle('status:getfolder', async () => {
   }
   BrowserWindow.fromId(1).send('status:folder', homePath)
   return homePath
-})
+}
 
 ipcMain.handle('status:openFolder', (e, path) => {
   if (fs.existsSync(path)) {

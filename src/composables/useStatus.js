@@ -6,17 +6,6 @@ import { videoDevice, audioDevice, resolution } from './useStream'
 const disk = ref({ size: 0, free: 0 })
 const folder = ref(null)
 const error = ref('')
-let diskusage
-
-function startDiskChkTimer() {
-  diskusage = setInterval(async () => {
-    disk.value = await API.send('status:getdisk', folder.value)
-  }, 60000)
-}
-
-function stopDiskChkTimer() {
-  clearInterval(diskusage)
-}
 
 function APIHandler() {
   API.handle('status:state', (e, item) => {
@@ -71,14 +60,17 @@ async function openFolder() {
   API.send('status:openFolder', folder.value)
 }
 
+async function getFolder() {
+  await API.send('status:getFolder')
+}
+
 export {
   disk,
   error,
   folder,
-  startDiskChkTimer,
-  stopDiskChkTimer,
   APIHandler,
   getSetup,
   selFolder,
-  openFolder
+  openFolder,
+  getFolder
 }
