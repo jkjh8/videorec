@@ -7,6 +7,7 @@ import disk from 'check-disk-space'
 import db from '../db'
 
 import './recorder'
+
 const homePath = app.getPath('home')
 
 let diskUseageInterval = setInterval(async () => {
