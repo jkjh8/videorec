@@ -11,7 +11,6 @@ import About from "components/dialogs/aboutDialog";
 const $q = useQuasar();
 
 function setSize() {
-  console.log("dbclick");
   setWindowSize();
 }
 
@@ -50,12 +49,12 @@ onBeforeMount(async () => {
 
 <template>
   <div class="q-gutter-y-md" style="padding: 10px 10px 10px 10px">
-    <div class="row justify-center" @click="setSize">
+    <div class="row justify-center">
       <video
         ref="video"
         class="video"
         @loadedmetadata="windowResize"
-        @dbclick="setsize"
+        @dblclick="setSize"
       />
     </div>
   </div>
