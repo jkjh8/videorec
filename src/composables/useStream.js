@@ -75,7 +75,7 @@ async function startStream() {
         options.video = {
           height: resolution.value.height,
           width: resolution.value.width,
-          framRate: { min: 24, ideal: resolution.value.framerate }
+          framRate: resolution.value.framerate
         }
         if (videoDevice.value) {
           options.video.deviceId = { exact: videoDevice.value }

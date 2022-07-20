@@ -29,6 +29,8 @@ function setAudioMeter() {
     source.value = ac.createMediaStreamSource(stream.value)
     analyserL = ac.createAnalyser()
     analyserR = ac.createAnalyser()
+    analyserL.fftSize = 64
+    analyserR.fftSize = 64
 
     const spliter = ac.createChannelSplitter(2)
 

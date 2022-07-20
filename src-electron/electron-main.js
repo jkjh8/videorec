@@ -41,7 +41,6 @@ function createWindow() {
   })
 
   mainWindow.loadURL(process.env.APP_URL)
-  // Menu.setApplicationMenu(menu)
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
@@ -56,6 +55,7 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+  Menu.setApplicationMenu(menu)
 }
 
 app.whenReady().then(createWindow)

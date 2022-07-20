@@ -50,18 +50,20 @@ async function getSetup() {
 }
 
 async function selFolder() {
-  const f = await API.send('status:selFolder')
+  const f = await API.send('status:selfolder')
   if (f) {
     folder.value = f
   }
 }
 
 async function openFolder() {
-  API.send('status:openFolder', folder.value)
+  API.send('status:openfolder', folder.value)
 }
-
+async function getDiskUseage() {
+  disk.value = await API.send('status:diskuseage')
+}
 async function getFolder() {
-  await API.send('status:getFolder')
+  API.send('status:getfolder')
 }
 
 export {
@@ -72,5 +74,6 @@ export {
   getSetup,
   selFolder,
   openFolder,
-  getFolder
+  getFolder,
+  getDiskUseage
 }

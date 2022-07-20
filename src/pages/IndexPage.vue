@@ -5,14 +5,16 @@ import { getDevices, changeDevices } from "src/composables/useStream";
 import { checkSupportedTypes, setStreamRecorder } from "src/composables/useRecorder";
 import { video, windowResize, setWindowSize } from "src/composables/useVideo";
 import { setMeterWidth } from "src/composables/useAudio";
-import { error, APIHandler, getSetup, getFolder } from "src/composables/useStatus";
+import {
+  error,
+  APIHandler,
+  getSetup,
+  getFolder,
+  getDiskUseage,
+} from "src/composables/useStatus";
 import About from "components/dialogs/aboutDialog";
 
 const $q = useQuasar();
-
-function setSize() {
-  setWindowSize();
-}
 
 onMounted(async () => {
   window.addEventListener("resize", () => {
@@ -44,7 +46,8 @@ onBeforeMount(async () => {
   changeDevices();
   APIHandler();
   getSetup();
-  // getFolder();
+  getDiskUseage();
+  getFolder();
 });
 </script>
 
@@ -55,7 +58,7 @@ onBeforeMount(async () => {
         ref="video"
         class="video"
         @loadedmetadata="windowResize"
-        @dblclick="setSize"
+        @dblclick="setWindowSize"
       />
     </div>
   </div>

@@ -14,6 +14,7 @@ export const qualitys = [
   { label: '2.5M', value: 2500000 },
   { label: '3M', value: 3000000 },
   { label: '4M', value: 4000000 },
+  { label: '5M', value: 5000000 },
   { label: '6M', value: 6000000 },
   { label: '8M', value: 8000000 },
   { label: '15M', value: 15000000 },

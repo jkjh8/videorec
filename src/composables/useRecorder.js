@@ -41,7 +41,7 @@ function setRecorder() {
 
   recorder.value.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
-    recTime.value = recTime.value + 0.01
+    recTime.value = recTime.value + 0.5
   }
 
   recorder.value.onerror = (e) => {
@@ -74,7 +74,7 @@ function updateRecorderState() {
 function recStart() {
   recTime.value = 0
   API.send('rec:start', { format, quality })
-  recorder.value.start(10)
+  recorder.value.start(500)
 }
 
 function recStop() {

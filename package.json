@@ -1,8 +1,8 @@
 {
-  "name": "videorec",
+  "name": "videorecorderforamx",
   "version": "0.0.1",
-  "description": "video recorder",
-  "productName": "Video Recorder",
+  "description": "video recorder for amx capture device",
+  "productName": "Video Recorder for AMX",
   "author": "jkjh8 <jkjh82@naver.com>",
   "private": true,
   "scripts": {
