@@ -83,7 +83,13 @@ function updateRecorderState() {
 
 function recStart() {
   startTimer()
-  API.send('rec:start', { format, quality })
+  console.log(recorder.value)
+  API.send('rec:start', {
+    format,
+    quality,
+    audio: recorder.value.audioBitsPerSecond,
+    video: recorder.value.videoBitsPerSecond
+  })
   recorder.value.start(100)
 }
 

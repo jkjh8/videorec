@@ -4,10 +4,15 @@ import path from 'node:path'
 import moment from 'moment'
 import db from '../../db'
 import { homePath, currentPath, checkFolder } from '../index'
+import pathToFfmpeg from 'ffmpeg-static'
+console.log(pathToFfmpeg)
+import ffmpeg from 'fluent-ffmpeg'
+
+ffmpeg.setFfmpegPath(pathToFfmpeg)
 
 let writeFileStream
 let file
-
+let streamPerSecond
 function makeFileName(format) {
   const name = moment().format('YYYY-MM-DD_HH:mm:ss_a')
   let ext
@@ -34,7 +39,8 @@ function makeFileName(format) {
 
 ipcMain.handle('rec:start', async (e, args) => {
   try {
-    const { format } = args
+    const { format, audio, video } = args
+    streamPerSecond = audio + video
     file = path.join(await checkFolder(), makeFileName(format))
     writeFileStream = fs.createWriteStream(file)
 
@@ -51,6 +57,8 @@ ipcMain.handle('rec:start', async (e, args) => {
 ipcMain.handle('rec:stop', async () => {
   writeFileStream.end()
   console.log('stop filestream: ' + file)
+  filesize = fs.statSync(file).size
+  console.log(filesize / streamPerSecond)
 })
 
 ipcMain.handle('rec:data', (e, buffer) => {
