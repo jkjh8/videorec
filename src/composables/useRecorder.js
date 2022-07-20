@@ -86,9 +86,7 @@ function recStart() {
   console.log(recorder.value)
   API.send('rec:start', {
     format,
-    quality,
-    audio: recorder.value.audioBitsPerSecond,
-    video: recorder.value.videoBitsPerSecond
+    quality
   })
   recorder.value.start(100)
 }
