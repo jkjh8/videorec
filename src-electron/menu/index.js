@@ -7,9 +7,10 @@ const template = [
         label: 'About',
         accelerator: 'F1',
         click: () => {
-          return BrowserWindow.fromId(1).webContents.send(
-            'menu:about'
-          )
+          const windows = BrowserWindow.getAllWindows()
+          windows.forEach((win) => {
+            win.webContents.send('menu:about')
+          })
         }
       }
     ]

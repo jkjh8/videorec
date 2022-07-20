@@ -6,19 +6,29 @@ import { contentTypes, qualitys } from './recorder/recorderOptions'
 
 const recorder = ref(null)
 const supportedTypes = ref([])
-const format = ref('video/webm;codecs=vp9')
+const format = ref('video/webm')
 const quality = ref(2500000)
 const recState = ref('')
 const recTime = ref(0)
-const recTimeString = computed(() => {
-  return `${parseInt(recTime.value / 3600) < 10 ? '0' : ''}${parseInt(
-    recTime.value / 3600
-  )}:${
-    parseInt((recTime.value / 3600) % 60) < 10 ? '0' : ''
-  }${parseInt((recTime.value / 3600) % 60)}:${
-    parseInt(recTime.value % 60) < 10 ? '0' : ''
-  }${parseInt(recTime.value % 60)}`
-})
+let timer
+const recTimeString = ref('00:00:00')
+function startTimer() {
+  recTime.value = 0
+  timer = setInterval(() => {
+    recTime.value++
+    recTimeString.value = `${
+      parseInt(recTime.value / 3600) < 10 ? '0' : ''
+    }${parseInt(recTime.value / 3600)}:${
+      parseInt((recTime.value % 3600) / 60) < 10 ? '0' : ''
+    }${parseInt((recTime.value % 3600) / 60)}:${
+      parseInt(recTime.value % 60) < 10 ? '0' : ''
+    }${parseInt(recTime.value % 60)}`
+  }, 1000)
+}
+
+function stopTimer() {
+  clearInterval(timer)
+}
 
 function checkSupportedTypes() {
   supportedTypes.value = []
@@ -36,12 +46,12 @@ function checkSupportedTypes() {
 function setRecorder() {
   recorder.value = new MediaRecorder(stream.value, {
     mimeType: format.value,
-    videoBitsPerSecond: quality.value
+    videoBitsPerSecond: quality.value,
+    audioBitsPerSecond: 128000
   })
 
   recorder.value.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
-    recTime.value = recTime.value + 0.5
   }
 
   recorder.value.onerror = (e) => {
@@ -72,12 +82,13 @@ function updateRecorderState() {
 }
 
 function recStart() {
-  recTime.value = 0
+  startTimer()
   API.send('rec:start', { format, quality })
-  recorder.value.start(500)
+  recorder.value.start(100)
 }
 
 function recStop() {
+  stopTimer()
   recorder.value.stop()
   API.send('rec:stop')
 }
