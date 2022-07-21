@@ -15,7 +15,6 @@
     "buffer": "^6.0.3",
     "check-disk-space": "^3.3.0",
     "core-js": "^3.6.5",
-    "ebml-stream": "^1.0.3",
     "ffmpeg-static": "^5.0.2",
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.2",

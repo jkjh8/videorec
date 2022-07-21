@@ -3335,11 +3335,6 @@ ebml-block@^1.1.0, ebml-block@^1.1.2:
   resolved "https://registry.yarnpkg.com/ebml-block/-/ebml-block-1.1.2.tgz#fd49951b0faf5a3049bdd61c851a76b5e679c290"
   integrity sha512-HgNlIsRFP6D9VKU5atCeHRJY7XkJP8bOe8yEhd8NB7B3b4++VWTyauz6g650iiPmLfPLGlVpoJmGSgMfXDYusg==
 
-ebml-stream@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/ebml-stream/-/ebml-stream-1.0.3.tgz#9017fd5bb11e88da045db1d84a297e961404dead"
-  integrity sha512-A+jCBY5NNAH/CQlcjLWN9txgv3uNiz+UAmMqDHPxFxoMNnuerV0RLhkE0YI9aNhdS3JVfcEQ9jFWq39fAR2W5g==
-
 ebml@^2.2.1:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/ebml/-/ebml-2.2.4.tgz#85df1fe096f1c614c470715ebc037c751d5ab0e7"
