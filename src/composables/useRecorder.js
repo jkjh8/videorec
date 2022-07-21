@@ -121,7 +121,6 @@ export {
   quality,
   recState,
   setRecorder,
-  updateRecorderState,
   recStart,
   recStop,
   recStartStop,
