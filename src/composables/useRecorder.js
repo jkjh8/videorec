@@ -9,21 +9,17 @@ const supportedTypes = ref([])
 const format = ref('video/webm')
 const quality = ref(2500000)
 const recState = ref('')
-const recTime = ref(0)
-let timer
+
+let startTime = moment()
 const recTimeString = ref('00:00:00')
-function startTimer() {
-  recTime.value = 0
-  timer = setInterval(() => {
-    recTime.value++
-    recTimeString.value = `${
-      parseInt(recTime.value / 3600) < 10 ? '0' : ''
-    }${parseInt(recTime.value / 3600)}:${
-      parseInt((recTime.value % 3600) / 60) < 10 ? '0' : ''
-    }${parseInt((recTime.value % 3600) / 60)}:${
-      parseInt(recTime.value % 60) < 10 ? '0' : ''
-    }${parseInt(recTime.value % 60)}`
-  }, 1000)
+function curculeTime() {
+  const time = moment.duration(moment().diff(startTime)).asSeconds()
+  recTimeString.value = `${parseInt(time / 3600).padStart(
+    2,
+    '0'
+  )}:${parseInt((time % 3600) / 60).padStart(2, '0')}:${parseInt(
+    time % 60
+  ).padStart(2, '0')}`
 }
 
 function stopTimer() {
@@ -52,6 +48,7 @@ function setRecorder() {
 
   recorder.value.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
+    curculeTime()
   }
 
   recorder.value.onerror = (e) => {
@@ -82,15 +79,12 @@ function updateRecorderState() {
 }
 
 function recStart() {
-  startTimer()
-  console.log(recorder.value)
+  startTime = moment()
   API.send('rec:start', {
     format,
-    quality,
-    audio: recorder.value.audioBitsPerSecond,
-    video: recorder.value.videoBitsPerSecond
+    quality
   })
-  recorder.value.start(100)
+  recorder.value.start(500)
 }
 
 function recStop() {
