@@ -55,7 +55,7 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-  Menu.setApplicationMenu(menu)
+  // Menu.setApplicationMenu(menu)
 }
 
 app.whenReady().then(createWindow)

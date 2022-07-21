@@ -3,14 +3,56 @@ import { stream, startStream, stopStream } from './useStream'
 import { setAudioMeter } from './useAudio'
 import { setVideo } from './useVideo'
 import { contentTypes, qualitys } from './recorder/recorderOptions'
+import { Buffer } from 'buffer'
+import RecordRTC, {
+  invokeSaveAsDialog,
+  getSeekableBlob
+} from 'recordrtc'
 
-const recorder = ref(null)
+import { Decoder, Encoder, tools, Reader } from 'ts-ebml'
+
+window.Buffer = Buffer
+
+const readAsArrayBuffer = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsArrayBuffer(blob)
+    reader.onloadend = () => {
+      resolve(reader.result)
+    }
+    reader.onerror = (ev) => {
+      reject(ev.error)
+    }
+  })
+}
+const injectMetadata = (blob) => {
+  const decoder = new Decoder()
+  const reader = new Reader()
+  reader.logging = false
+  reader.drop_default_duration = false
+  return readAsArrayBuffer(blob).then((buffer) => {
+    const elms = decoder.decode(buffer)
+    elms.forEach((elm) => {
+      reader.read(elm)
+    })
+    reader.stop()
+    const refinedMetadataBuf = tools.makeMetadataSeekable(
+      reader.metadatas,
+      reader.duration,
+      reader.cues
+    )
+    const body = buffer.slice(reader.metadataSize)
+    return new Blob([refinedMetadataBuf, body], { type: blob.type })
+  })
+}
+
+let timer
+let recorder = null
 const supportedTypes = ref([])
 const format = ref('video/webm')
 const quality = ref(2500000)
 const recState = ref('')
 const recTime = ref(0)
-let timer
 const recTimeString = ref('00:00:00')
 function startTimer() {
   recTime.value = 0
@@ -43,58 +85,56 @@ function checkSupportedTypes() {
   }
 }
 
-function setRecorder() {
-  recorder.value = new MediaRecorder(stream.value, {
-    mimeType: format.value,
-    videoBitsPerSecond: quality.value,
-    audioBitsPerSecond: 128000
+async function setRecorder() {
+  recorder = RecordRTC(stream.value, {
+    type: 'video'
   })
 
-  recorder.value.ondataavailable = async (d) => {
+  recorder.ondataavailable = async (d) => {
     API.send('rec:data', await d.data.arrayBuffer())
   }
 
-  recorder.value.onerror = (e) => {
-    updateRecorderState()
+  recorder.onerror = (e) => {
     console.error(`error recording stream: ${e.error.name}`)
   }
 
-  recorder.value.onpause = (e) => {
-    updateRecorderState()
+  recorder.onStateChanged = (state) => {
+    console.log('!!!!!!!!!!!!', state)
+    recState.value = state
   }
 
-  recorder.value.onresume = (e) => {
-    updateRecorderState()
-  }
+  recorder.onpause = (e) => {}
 
-  recorder.value.onstart = (e) => {
-    updateRecorderState()
-  }
+  recorder.onresume = (e) => {}
 
-  recorder.value.onstop = (e) => {
-    updateRecorderState()
-  }
-  updateRecorderState()
+  recorder.onstart = (e) => {}
+
+  recorder.onstop = (e) => {}
 }
 
-function updateRecorderState() {
-  recState.value = recorder.value.state
-}
-
-function recStart() {
+async function recStart() {
   startTimer()
-  console.log(recorder.value)
-  API.send('rec:start', {
-    format,
-    quality
-  })
-  recorder.value.start(100)
+  recState.value = 'recording'
+  // API.send('rec:start', {
+  //   format,
+  //   quality
+  // })
+  recorder.startRecording()
 }
 
-function recStop() {
+async function recStop() {
   stopTimer()
-  recorder.value.stop()
-  API.send('rec:stop')
+  await recorder.stopRecording(() => {
+    let blob = recorder.getBlob()
+    console.log(blob)
+    injectMetadata(blob).then(async (sb) => {
+      console.log(sb)
+      API.send('rec:data', await sb.arrayBuffer())
+    })
+  })
+  // setTimeout(() => {
+  //   API.send('rec:stop')
+  // }, 1000)
 }
 
 async function setStreamRecorder() {
@@ -128,7 +168,6 @@ export {
   checkSupportedTypes,
   supportedTypes,
   setRecorder,
-  updateRecorderState,
   recStart,
   recStop,
   recTimeString,

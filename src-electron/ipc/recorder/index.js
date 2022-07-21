@@ -1,62 +1,42 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import fs, { write } from 'node:fs'
 import path from 'node:path'
+import { Blob } from 'buffer'
 import moment from 'moment'
-import { EbmlStreamDecoder } from 'ebml-stream'
+import fixWebmDuration from 'webm-duration-fix'
+// import { EbmlStreamDecoder } from 'ebml-stream'
 
 import db from '../../db'
 import { homePath, currentPath, checkFolder } from '../index'
-// import pathToFfmpeg from 'ffmpeg-static'
-// console.log(pathToFfmpeg)
-// import ffmpeg from 'fluent-ffmpeg'
+import pathToFfmpeg from 'ffmpeg-static'
+import pathToFfprobe from 'ffprobe-static'
+import ffmpeg from 'fluent-ffmpeg'
 
-// ffmpeg.setFfmpegPath(pathToFfmpeg)
+ffmpeg.setFfmpegPath(pathToFfmpeg)
+ffmpeg.setFfprobePath(pathToFfprobe.path)
 
 let writeFileStream
 let file
-let streamPerSecond
-let decoder
+let fileNum = 1
+let files = []
+let blobSlice = []
 
 function makeFileName(format) {
-  const name = moment().format('YYYY-MM-DD_HH:mm:ss_a')
-  let ext
-
-  switch (format) {
-    case 'video/ogg':
-      ext = 'ogg'
-      break
-    case 'video/mkv':
-      ext = 'mkv'
-      break
-    case 'video/mp4':
-      ext = 'mp4'
-      break
-    case 'video/quicktime':
-      ext = 'mov'
-      break
-    default:
-      ext = 'webm'
-      break
-  }
-  return `${name}.${ext}`
+  return moment().format('YYYY-MM-DD_HH:mm:ss_a')
 }
 
 ipcMain.handle('rec:start', async (e, args) => {
   try {
-    const { format, audio, video } = args
-    streamPerSecond = audio + video
-    file = path.join(await checkFolder(), makeFileName(format))
+    fileNum = 1
+    files = []
+    // streamPerSecond = audio + video
+    file = path.join(await checkFolder(), makeFileName())
 
-    decoder = new EbmlStreamDecoder()
-    writeFileStream = fs.createWriteStream(file, {
-      metadata: { contentType: format }
-    })
+    // writeFileStream = fs.createWriteStream(file, {
+    //   metadata: { contentType: format }
+    // })
 
-    decoder.on('data', (chunk) => {
-      writeFileStream.write(chunk)
-    })
-
-    writeFileStream.on('finish', () => console.log('finish: ' + file))
+    // writeFileStream.on('finish', () => console.log('finish: ' + file))
 
     console.log('start filestream: ' + file)
     return null
@@ -67,12 +47,69 @@ ipcMain.handle('rec:start', async (e, args) => {
 })
 
 ipcMain.handle('rec:stop', async () => {
-  writeFileStream.end()
+  // writeFileStream.end()
   console.log('stop filestream: ' + file)
+  // const fixBlob = await fixWebmDuration(
+  //   new Blob([...blobSlice], { type: 'video/webm' })
+  // )
+  // console.log(fixBlob)
+  // const fileWriteStream = fs.createWriteStream(
+  //   path.join(currentPath, `${file}.webm`)
+  // )
+  // const blobReadstream = fixBlob.stream()
+  // const blobReader = blobReadstream.getReader()
+
+  // while (true) {
+  //   let { done, value } = await blobReader.read()
+  //   if (done) {
+  //     console.log('write done.')
+  //     fileWriteStream.close()
+  //     break
+  //   }
+  //   fileWriteStream.write(value)
+  //   value = null
+  // }
+  // blobSlice = []
+  // let mergedVideo = ffmpeg()
+  // console.log(files)
+  // files.forEach((f) => {
+  //   mergedVideo.mergeAdd(f)
+  // })
+
+  // mergedVideo
+  //   .on('progress', (progress) => {
+  //     console.log('update: ', progress)
+  //   })
+  //   .on('error', (err) => {
+  //     console.log(err)
+  //   })
+  //   .on('end', function () {
+  //     console.log('done')
+  //   })
+  //   .save(path.join(currentPath, `${file}.webm'`))
+  // ffmpeg(file).ffprobe((err, data) => {
+  //   console.log(err, data)
+  // })
   // filesize = fs.statSync(file).size
   // console.log(filesize / streamPerSecond)
+  // ffmpeg(file)
+  //   .on('progress', (progress) => {
+  //     console.log('update: ', progress)
+  //   })
+  //   .on('error', (err) => {
+  //     console.log(err)
+  //   })
+  //   .on('end', function () {
+  //     console.log('done')
+  //   })
+  //   .save(path.join(currentPath, 'test.mp4'))
 })
 
 ipcMain.handle('rec:data', (e, buffer) => {
-  decoder.write(Buffer.from(buffer))
+  // console.log('update', JSON.parse(buffer))
+  // writeFileStream.write(Buffer.from(buffer))
+  const currentFile = path.join(currentPath, `temp${file}.webm`)
+  // files.push(currentFile)
+  fs.writeFileSync(currentFile, Buffer.from(buffer))
+  // fileNum++
 })
