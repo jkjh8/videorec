@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import moment from 'moment'
 import { stream, startStream, stopStream } from './useStream'
 import { setAudioMeter } from './useAudio'
 import { setVideo } from './useVideo'
@@ -14,12 +15,13 @@ let startTime = moment()
 const recTimeString = ref('00:00:00')
 function curculeTime() {
   const time = moment.duration(moment().diff(startTime)).asSeconds()
-  recTimeString.value = `${parseInt(time / 3600).padStart(
+  const h = parseInt(time / 3600)
+  const m = parseInt((time % 3600) / 60)
+  const s = parseInt(time % 60)
+  recTimeString.value = `${h.padStart(2, '0')}:${m.padStart(
     2,
     '0'
-  )}:${parseInt((time % 3600) / 60).padStart(2, '0')}:${parseInt(
-    time % 60
-  ).padStart(2, '0')}`
+  )}:${s.padStart(2, '0')}`
 }
 
 function stopTimer() {
@@ -47,6 +49,7 @@ function setRecorder() {
   })
 
   recorder.value.ondataavailable = async (d) => {
+    console.log(d)
     API.send('rec:data', await d.data.arrayBuffer())
     curculeTime()
   }
@@ -76,6 +79,7 @@ function setRecorder() {
 
 function updateRecorderState() {
   recState.value = recorder.value.state
+  console.log(recState.value)
 }
 
 function recStart() {

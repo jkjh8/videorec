@@ -37,14 +37,10 @@ ipcMain.handle('rec:start', async (e, args) => {
   try {
     const { format } = args
     file = makeFileName(format)
-    fileName = path.join(await checkFolder(), file)
+    const fileName = path.join(await checkFolder(), file)
 
-    writeFileStream = fs.createWriteStream(file, {
+    writeFileStream = fs.createWriteStream(fileName, {
       metadata: { contentType: format }
-    })
-
-    decoder.on('data', (chunk) => {
-      writeFileStream.write(chunk)
     })
 
     writeFileStream.on('finish', () => console.log('finish: ' + file))
@@ -66,5 +62,5 @@ ipcMain.handle('rec:stop', async () => {
 })
 
 ipcMain.handle('rec:data', (e, buffer) => {
-  decoder.write(Buffer.from(buffer))
+  writeFileStream.write(Buffer.from(buffer))
 })
