@@ -14,25 +14,6 @@ const recorder = ref(null)
 const format = ref('video/webm')
 const quality = ref(4000000)
 const recState = ref('')
-<<<<<<< HEAD
-=======
-
-let startTime = moment()
-const recTimeString = ref('00:00:00')
-function curculeTime() {
-  const time = moment.duration(moment().diff(startTime)).asSeconds()
-  recTimeString.value = `${parseInt(time / 3600).padStart(
-    2,
-    '0'
-  )}:${parseInt((time % 3600) / 60).padStart(2, '0')}:${parseInt(
-    time % 60
-  ).padStart(2, '0')}`
-}
-
-function stopTimer() {
-  clearInterval(timer)
-}
->>>>>>> 7af9a0f (settimer)
 
 const clockString = computed(() => {
   let sec = parseInt(time.value / 1000)
@@ -49,7 +30,6 @@ const clockString = computed(() => {
 })
 
 function setRecorder() {
-<<<<<<< HEAD
   return new Promise((resolve, reject) => {
     try {
       time.value = 0
@@ -72,27 +52,6 @@ function setRecorder() {
           time: time.value
         })
       }
-=======
-  recorder.value = new MediaRecorder(stream.value, {
-    mimeType: format.value,
-    videoBitsPerSecond: quality.value,
-    audioBitsPerSecond: 128000
-  })
-
-  recorder.value.ondataavailable = async (d) => {
-    API.send('rec:data', await d.data.arrayBuffer())
-    curculeTime()
-  }
-
-  recorder.value.onerror = (e) => {
-    updateRecorderState()
-    console.error(`error recording stream: ${e.error.name}`)
-  }
-
-  recorder.value.onpause = (e) => {
-    updateRecorderState()
-  }
->>>>>>> 7af9a0f (settimer)
 
       recorder.value.onerror = (e) => {
         updateRecorderState()
@@ -136,20 +95,10 @@ function updateRecorderState() {
   return recState.value
 }
 
-<<<<<<< HEAD
 async function recStart() {
   recState.value = await setRecorder()
   await API.send('rec:start')
   recorder.value.start(100)
-=======
-function recStart() {
-  startTime = moment()
-  API.send('rec:start', {
-    format,
-    quality
-  })
-  recorder.value.start(500)
->>>>>>> 7af9a0f (settimer)
 }
 
 function recStop() {
