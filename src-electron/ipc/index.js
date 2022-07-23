@@ -33,8 +33,8 @@ async function checkFolder(cf) {
 }
 
 async function getDiskUseage(cf) {
-  await checkFolder(cf)
-  return await disk(currentPath)
+  const p = await checkFolder(cf)
+  return await disk(p)
 }
 
 async function getFolderDialog() {

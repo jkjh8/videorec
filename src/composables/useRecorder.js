@@ -18,10 +18,9 @@ function curculeTime() {
   const h = parseInt(time / 3600)
   const m = parseInt((time % 3600) / 60)
   const s = parseInt(time % 60)
-  recTimeString.value = `${h.padStart(2, '0')}:${m.padStart(
-    2,
-    '0'
-  )}:${s.padStart(2, '0')}`
+  recTimeString.value = `${h.toString().padStart(2, '0')}:${m
+    .toString()
+    .padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
 function stopTimer() {
@@ -82,9 +81,9 @@ function updateRecorderState() {
   console.log(recState.value)
 }
 
-function recStart() {
+async function recStart() {
   startTime = moment()
-  API.send('rec:start', {
+  await API.send('rec:start', {
     format,
     quality
   })
@@ -92,7 +91,6 @@ function recStart() {
 }
 
 function recStop() {
-  stopTimer()
   recorder.value.stop()
   API.send('rec:stop')
 }

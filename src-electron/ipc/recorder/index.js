@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import fs, { write } from 'node:fs'
+import fs from 'node:fs'
 import path from 'node:path'
 import moment from 'moment'
 import db from '../../db'
@@ -8,6 +8,7 @@ import { setTagFile } from './ebml'
 
 let writeFileStream
 let file
+let fileName
 
 function makeFileName(format) {
   const name = moment().format('YYYY-MM-DD_HH:mm:ss_a')
@@ -34,29 +35,31 @@ function makeFileName(format) {
 }
 
 ipcMain.handle('rec:start', async (e, args) => {
-  try {
-    const { format } = args
-    file = makeFileName(format)
-    const fileName = path.join(await checkFolder(), file)
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { format } = args
+      file = makeFileName(format)
+      fileName = path.join(await checkFolder(), file)
+      writeFileStream = fs.createWriteStream(fileName)
+      writeFileStream.on('open', () => {
+        console.log(fs.existsSync(fileName))
+        resolve()
+      })
+      writeFileStream.on('finish', () =>
+        console.log('finish: ' + file)
+      )
 
-    writeFileStream = fs.createWriteStream(fileName, {
-      metadata: { contentType: format }
-    })
-
-    writeFileStream.on('finish', () => console.log('finish: ' + file))
-
-    console.log('start filestream: ' + file)
-    return null
-  } catch (err) {
-    console.error(err)
-    return err
-  }
+      console.log('start filestream: ' + fileName)
+    } catch (err) {
+      reject(err)
+    }
+  })
 })
 
 ipcMain.handle('rec:stop', async () => {
   writeFileStream.end()
-  setTagFile(file)
-  console.log('stop filestream: ' + file)
+  setTagFile(fileName)
+  console.log('stop filestream: ' + fileName)
   // filesize = fs.statSync(file).size
   // console.log(filesize / streamPerSecond)
 })
