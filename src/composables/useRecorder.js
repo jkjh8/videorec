@@ -15,6 +15,7 @@ const format = ref('video/webm')
 const quality = ref(4000000)
 const recState = ref('')
 
+<<<<<<< HEAD
 const clockString = computed(() => {
   let sec = parseInt(time.value / 1000)
   const h = parseInt(sec / 3600)
@@ -28,6 +29,36 @@ const clockString = computed(() => {
     .padStart(2, '0')
   return h + ':' + m + ':' + s
 })
+=======
+let startTime = moment()
+const recTimeString = ref('00:00:00')
+function curculeTime() {
+  const time = moment.duration(moment().diff(startTime)).asSeconds()
+  const h = parseInt(time / 3600)
+  const m = parseInt((time % 3600) / 60)
+  const s = parseInt(time % 60)
+  recTimeString.value = `${h.toString().padStart(2, '0')}:${m
+    .toString()
+    .padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+}
+
+function stopTimer() {
+  clearInterval(timer)
+}
+
+function checkSupportedTypes() {
+  supportedTypes.value = []
+  try {
+    contentTypes.forEach((type) => {
+      if (MediaRecorder.isTypeSupported(type)) {
+        supportedTypes.value.push(type)
+      }
+    })
+  } catch (e) {
+    console.error(e)
+  }
+}
+>>>>>>> 1cc38e1 (123)
 
 function setRecorder() {
   return new Promise((resolve, reject) => {
@@ -96,9 +127,18 @@ function updateRecorderState() {
 }
 
 async function recStart() {
+<<<<<<< HEAD
   recState.value = await setRecorder()
   await API.send('rec:start')
   recorder.value.start(100)
+=======
+  startTime = moment()
+  await API.send('rec:start', {
+    format,
+    quality
+  })
+  recorder.value.start(500)
+>>>>>>> 1cc38e1 (123)
 }
 
 function recStop() {
