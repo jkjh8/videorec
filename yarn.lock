@@ -3322,16 +3322,20 @@ duplexer@^0.1.2:
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==
 
+<<<<<<< HEAD
 ebml-block@^1.1.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/ebml-block/-/ebml-block-1.1.2.tgz#fd49951b0faf5a3049bdd61c851a76b5e679c290"
   integrity sha512-HgNlIsRFP6D9VKU5atCeHRJY7XkJP8bOe8yEhd8NB7B3b4++VWTyauz6g650iiPmLfPLGlVpoJmGSgMfXDYusg==
 
+=======
+>>>>>>> main
 ebml-stream@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/ebml-stream/-/ebml-stream-1.0.3.tgz#9017fd5bb11e88da045db1d84a297e961404dead"
   integrity sha512-A+jCBY5NNAH/CQlcjLWN9txgv3uNiz+UAmMqDHPxFxoMNnuerV0RLhkE0YI9aNhdS3JVfcEQ9jFWq39fAR2W5g==
 
+<<<<<<< HEAD
 ebml@^2.2.1:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/ebml/-/ebml-2.2.4.tgz#85df1fe096f1c614c470715ebc037c751d5ab0e7"
@@ -3340,6 +3344,8 @@ ebml@^2.2.1:
     buffers "^0.1.1"
     debug "~3.1.0"
 
+=======
+>>>>>>> main
 ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"

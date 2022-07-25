@@ -77,7 +77,6 @@ function updateRecorderState() {
 async function recStart() {
   recState.value = await setRecorder()
   await API.send('rec:start')
-  recorder.value.start(100)
 }
 
 function recStop() {

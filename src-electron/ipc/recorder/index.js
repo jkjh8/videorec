@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import moment from 'moment'
+import { EbmlStreamDecoder } from 'ebml-stream'
+
 import db from '../../db'
 import { currentPath, checkFolder } from '../index'
 import { makeSeekable } from './ebml'
