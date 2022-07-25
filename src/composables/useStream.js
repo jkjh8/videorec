@@ -85,7 +85,7 @@ async function startStream() {
       stream.value = await navigator.mediaDevices.getUserMedia(
         options
       )
-      resolve()
+      resolve(null)
     } catch (err) {
       reject(err)
     }

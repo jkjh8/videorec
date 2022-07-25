@@ -1,57 +1,35 @@
 import fs from 'fs'
-import path from 'path'
-import { homePath, currentPath, checkFolder } from '../index'
-import {
-  EbmlStreamDecoder,
-  EbmlStreamEncoder,
-  EbmlTagId
-} from 'ebml-stream'
-import { Transform } from 'stream'
+import { Reader, Decoder, tools } from 'ts-ebml'
 
-const ebmlDecoder = new EbmlStreamDecoder({
-  bufferTagIds: [EbmlTagId.TrackEntry]
-})
-const ebmlEncoder = new EbmlStreamEncoder()
+// import ffmpeg from 'fluent-ffmpeg'
+// import ffmpegPath from 'ffmpeg-static'
+// import ffprobePath from 'ffprobe-static'
 
-let strippedTracks = {}
+// ffmpeg.setFfmpegPath(ffmpegPath)
+// ffmpeg.setFfprobePath(ffprobePath.path)
 
-export function setTagFile(fileName) {
-  fs.createReadStream(path.join(currentPath, fileName))
-    .pipe(ebmlDecoder)
-    .pipe(
-      new Transform({
-        transform(chunk, enc, cb) {
-          console.log(chunk)
-          if (chunk.id === EbmlTagId.TrackEntry) {
-            if (
-              chunk.Children.find((c) => c.id === EbmlTagId.TrackType)
-                .data != 2
-            ) {
-              strippedTracks[
-                chunk.Children.find(
-                  (c) => c.id === EbmlTagId.TrackNumber
-                ).data
-              ] = true
-              chunk = null
-            }
-          } else if (
-            chunk.id === EbmlTagId.Block ||
-            chunk.id === EbmlTagId.SimpleBlock
-          ) {
-            if (strippedTracks[chunk.track]) {
-              chunk = null
-            }
-          }
-          cb(null, chunk)
-        },
-        readableObjectMode: true,
-        writableObjectMode: true
-      })
-    )
-    .pipe(ebmlEncoder)
-    .pipe(
-      fs.createWriteStream(
-        path.join(currentPath, `decoded_${fileName}`)
-      )
-    )
+export async function makeSeekable(args) {
+  const decoder = new Decoder()
+  const reader = new Reader()
+  reader.drop_default_duration = false
+  const webMBuf = fs.readFileSync(args.tempFile)
+  const elms = decoder.decode(webMBuf)
+  elms.forEach((elms) => {
+    reader.read(elms)
+  })
+  reader.stop()
+  const refinedMetadataBuf = tools.makeMetadataSeekable(
+    reader.metadatas,
+    args.duration,
+    reader.cues
+  )
+  const body = webMBuf.slice(reader.metadataSize)
+  fs.writeFileSync(
+    args.fileFullPath,
+    Buffer.concat([Buffer.from(refinedMetadataBuf), body])
+  )
+
+  // ffmpeg(args.fileFullPath).ffprobe((err, data) => {
+  //   console.log(err, data)
+  // })
 }

@@ -1,14 +1,10 @@
 <script setup>
 import { useQuasar, format } from "quasar";
-import { audioMute, setAudioMute } from "src/composables/useVideo";
+import { audioMute, setAudioMute, setVideo } from "src/composables/useVideo";
+import { setAudioMeter } from "src/composables/useAudio";
 import { disk, folder, error, selFolder, openFolder } from "src/composables/useStatus";
 import { stream, startStream, stopStream } from "src/composables/useStream";
-import {
-  setStreamRecorder,
-  recState,
-  recTimeString,
-  recStartStop,
-} from "src/composables/useRecorder";
+import { recState, clockString, recStartStop } from "src/composables/useRecorder";
 
 import AudioMeter from "components/audioMeter.vue";
 import SetupDialog from "components/dialogs/setupDialog.vue";
@@ -24,13 +20,15 @@ function openSetup() {
   }).onOk(async (items) => {
     $q.loading.show();
     try {
-      error.value = "";
       await API.send("setup:update", items);
-      await setStreamRecorder();
+      error.value = await stopStream();
+      error.value = await startStream();
+      setVideo();
+      setAudioMeter();
       $q.loading.hide();
     } catch (err) {
       $q.loading.hide();
-      console.error(err);
+      error.value = err.name;
     }
   });
 }
@@ -41,7 +39,7 @@ function openSetup() {
   <div class="row justify-between items-center control-box">
     <!-- timer -->
     <div>
-      <div class="text-h3">{{ recTimeString }}</div>
+      <div class="text-h3">{{ clockString }}</div>
       <div v-if="disk">
         <q-linear-progress :value="(disk.size - disk.free) / disk.size" />
         <div class="row justify-between items-center">

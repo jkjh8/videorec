@@ -11,13 +11,7 @@ import {
   resolution,
 } from "src/composables/useStream";
 
-import {
-  checkSupportedTypes,
-  supportedTypes,
-  format,
-  qualitys,
-  quality,
-} from "src/composables/useRecorder";
+import { format, qualitys, quality } from "src/composables/useRecorder";
 
 const $q = useQuasar();
 
@@ -26,7 +20,6 @@ const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent();
 
 function refresh() {
   getDevices();
-  checkSupportedTypes();
 }
 
 function onSubmit() {
@@ -67,13 +60,13 @@ function onSubmit() {
       <q-form @submit="onSubmit">
         <q-card-section>
           <div class="q-gutter-y-sm">
-            <q-select
+            <!-- <q-select
               v-model="format"
               filled
               dense
               label="Recording Format"
               :options="supportedTypes"
-            />
+            /> -->
             <q-select
               v-model="videoDevice"
               filled

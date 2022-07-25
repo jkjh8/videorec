@@ -3,53 +3,37 @@ import fs from 'node:fs'
 import path from 'node:path'
 import moment from 'moment'
 import db from '../../db'
-import { homePath, currentPath, checkFolder } from '../index'
-import { setTagFile } from './ebml'
+import { currentPath, checkFolder } from '../index'
+import { makeSeekable } from './ebml'
 
 let writeFileStream
-let file
-let fileName
+let duration
 
-function makeFileName(format) {
-  const name = moment().format('YYYY-MM-DD_HH:mm:ss_a')
-  let ext
-
-  switch (format) {
-    case 'video/ogg':
-      ext = 'ogg'
-      break
-    case 'video/mkv':
-      ext = 'mkv'
-      break
-    case 'video/mp4':
-      ext = 'mp4'
-      break
-    case 'video/quicktime':
-      ext = 'mov'
-      break
-    default:
-      ext = 'webm'
-      break
-  }
-  return `${name}.${ext}`
+function makeFileName() {
+  return `${moment().format('YYYY-MM-DD HH_mm_ss')}.webm`
 }
 
-ipcMain.handle('rec:start', async (e, args) => {
+ipcMain.handle('rec:start', async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { format } = args
-      file = makeFileName(format)
-      fileName = path.join(await checkFolder(), file)
-      writeFileStream = fs.createWriteStream(fileName)
-      writeFileStream.on('open', () => {
-        console.log(fs.existsSync(fileName))
-        resolve()
-      })
-      writeFileStream.on('finish', () =>
-        console.log('finish: ' + file)
-      )
+      await checkFolder()
+      const fileName = makeFileName()
+      const fileFullPath = path.join(currentPath, fileName)
+      const tempFile = path.join(currentPath, 'recorder_temp.webm')
 
-      console.log('start filestream: ' + fileName)
+      writeFileStream = fs.createWriteStream(tempFile)
+      writeFileStream.on('finish', async () => {
+        await makeSeekable({
+          fileName,
+          fileFullPath,
+          tempFile,
+          duration
+        })
+        console.log('stop rec: ' + fileFullPath)
+      })
+      writeFileStream.on('open', () => {
+        resolve(console.log('start rec: ' + fileName))
+      })
     } catch (err) {
       reject(err)
     }
@@ -57,13 +41,10 @@ ipcMain.handle('rec:start', async (e, args) => {
 })
 
 ipcMain.handle('rec:stop', async () => {
-  writeFileStream.end()
-  setTagFile(fileName)
-  console.log('stop filestream: ' + fileName)
-  // filesize = fs.statSync(file).size
-  // console.log(filesize / streamPerSecond)
+  await writeFileStream.end()
 })
 
-ipcMain.handle('rec:data', (e, buffer) => {
-  writeFileStream.write(Buffer.from(buffer))
+ipcMain.handle('rec:data', (e, args) => {
+  duration = args.time
+  writeFileStream.write(Buffer.from(args.buffer))
 })

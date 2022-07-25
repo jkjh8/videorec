@@ -7,7 +7,6 @@ import { dbSetupFindOne } from '../db/dbFunc'
 
 import './recorder'
 import './status'
-import { send } from 'node:process'
 
 let currentPath
 const homePath = app.getPath('home')

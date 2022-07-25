@@ -1,10 +1,9 @@
 <script setup>
 import { onMounted, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
-import { getDevices, changeDevices } from "src/composables/useStream";
-import { checkSupportedTypes, setStreamRecorder } from "src/composables/useRecorder";
-import { video, windowResize, setWindowSize } from "src/composables/useVideo";
-import { setMeterWidth } from "src/composables/useAudio";
+import { getDevices, changeDevices, startStream } from "src/composables/useStream";
+import { video, windowResize, setWindowSize, setVideo } from "src/composables/useVideo";
+import { setMeterWidth, setAudioMeter } from "src/composables/useAudio";
 import {
   error,
   APIHandler,
@@ -30,14 +29,13 @@ onMounted(async () => {
 
   $q.loading.show();
   try {
-    error.value = "";
-    checkSupportedTypes();
     await getDevices();
-    await setStreamRecorder();
+    await startStream();
+    setVideo();
+    setAudioMeter();
     $q.loading.hide();
   } catch (err) {
     $q.loading.hide();
-    console.log(err);
     error.value = err.name;
   }
 });
