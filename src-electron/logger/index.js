@@ -3,7 +3,7 @@ import winston from 'winston'
 import winstonDaily from 'winston-daily-rotate-file'
 import path from 'path'
 
-const logDir = path.join(app.getPath('userData'), 'logs')
+const logDir = app.getPath('userData')
 const { combine, timestamp, printf } = winston.format
 
 const logFormat = printf((info) => {
@@ -19,7 +19,7 @@ const logger = winston.createLogger({
     new winstonDaily({
       level: 'info',
       datePattern: 'YYYY-MM-DD',
-      diranem: logDir,
+      diranem: `${logDir}/logs`,
       filename: `%DATE%.log`,
       maxFiles: 30,
       zippedArchive: true
@@ -27,7 +27,7 @@ const logger = winston.createLogger({
     new winstonDaily({
       level: 'error',
       datePattern: 'YYYY-MM-DD',
-      dirname: logDir,
+      dirname: `${logDir}/logs`,
       filename: `%DATE%.error.log`,
       maxFiles: 30,
       zippedArchive: true
