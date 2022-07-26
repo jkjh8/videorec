@@ -1,9 +1,12 @@
 import fs from 'fs'
 import ffmpeg from 'fluent-ffmpeg'
-import ffmpegPath from 'ffmpeg-static'
+// import ffmpegPath from 'ffmpeg-static'
 import { sendMsgWindows } from '../index.js'
-
-ffmpeg.setFfmpegPath(ffmpegPath)
+const FfmpegPath = require('ffmpeg-static').replace(
+  'app.asar',
+  'app.asar.unpacked'
+)
+ffmpeg.setFfmpegPath(FfmpegPath)
 
 export function webmToMkv(args) {
   ffmpeg(fs.createReadStream(args.tempFile))
