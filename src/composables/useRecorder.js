@@ -1,11 +1,13 @@
 import { ref, computed } from 'vue'
-import moment from 'moment'
-import { stream, startStream, stopStream } from './useStream'
-import { setAudioMeter } from './useAudio'
-import { setVideo } from './useVideo'
+import { stream } from './useStream'
 import { qualitys } from './recorder/recorderOptions'
 import { error } from './useStatus'
+import fixWebmDuration from 'webm-duration-fix'
+import { Buffer } from 'buffer'
+import { useQuasar } from 'quasar'
+global.Buffer = Buffer
 
+let blobSlice = []
 const time = ref(0)
 let currentTime = 0
 const recorder = ref(null)
@@ -34,7 +36,7 @@ function setRecorder() {
       currentTime = 0
 
       recorder.value = new MediaRecorder(stream.value, {
-        mimeType: 'video/webm',
+        mimeType: format.value,
         videoBitsPerSecond: quality.value ?? 4000000,
         audioBitsPerSecond: 128000
       })
@@ -44,6 +46,7 @@ function setRecorder() {
           time.value = time.value + d.timeStamp - currentTime
         }
         currentTime = d.timeStamp
+        blobSlice.push(d.data)
         API.send('rec:data', {
           buffer: await d.data.arrayBuffer(),
           time: time.value
@@ -59,7 +62,25 @@ function setRecorder() {
         updateRecorderState()
       }
 
-      recorder.value.onstop = (e) => {
+      recorder.value.onstop = async (e) => {
+        API.send('file:start')
+        const fixBlob = await fixWebmDuration(
+          new Blob([...blobSlice], { type: format.value })
+        )
+        const blobReadstream = fixBlob.stream()
+        const blobReader = blobReadstream.getReader()
+
+        while (true) {
+          let { done, value } = await blobReader.read()
+          if (done) {
+            console.log('write done.')
+            API.send('file:stop')
+            break
+          }
+          API.send('file:data', value)
+          value = null
+        }
+        blobSlice = []
         updateRecorderState()
       }
       resolve(updateRecorderState())
@@ -77,6 +98,7 @@ function updateRecorderState() {
 async function recStart() {
   recState.value = await setRecorder()
   await API.send('rec:start')
+  recorder.value.start(100)
 }
 
 function recStop() {

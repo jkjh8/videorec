@@ -44,6 +44,14 @@ async function getFolderDialog() {
   })
 }
 
+async function getFileDialog() {
+  return dialog.showOpenDialogSync({
+    title: 'Select File',
+    defaultPath: currentPath ? currentPath : homePath,
+    properties: ['openFile']
+  })
+}
+
 async function sendMsgWindows(address, msg) {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((win) => {
@@ -56,6 +64,7 @@ export {
   currentPath,
   checkFolder,
   getFolderDialog,
+  getFileDialog,
   getDiskUseage,
   sendMsgWindows
 }

@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted } from "vue";
 import { useQuasar, format } from "quasar";
 import { audioMute, setAudioMute, setVideo } from "src/composables/useVideo";
 import { setAudioMeter } from "src/composables/useAudio";
@@ -11,8 +12,14 @@ import SetupDialog from "components/dialogs/setupDialog.vue";
 import TooltipBtn from "components/tooltipBtn";
 import TooltipUp from "components/tooltipUp";
 
+const converting = ref(false);
+
 const { humanStorageSize } = format;
 const $q = useQuasar();
+
+function convertMkv() {
+  API.send("file:convert");
+}
 
 function openSetup() {
   $q.dialog({
@@ -32,6 +39,43 @@ function openSetup() {
     }
   });
 }
+
+onMounted(() => {
+  API.handle("file:convert", (e, args) => {
+    switch (args.comm) {
+      case "start":
+        converting.value = true;
+        $q.notify({
+          color: "primary",
+          icon: "info",
+          position: "top",
+          message: "Converting Start",
+          caption: args.file,
+        });
+        break;
+      case "end":
+        converting.value = false;
+        $q.notify({
+          color: "primary",
+          icon: "info",
+          position: "top",
+          message: "Converting Complited",
+          caption: args.file,
+        });
+        break;
+      case "error":
+        converting.value = false;
+        $q.notify({
+          color: "red-10",
+          icon: "warning",
+          position: "top",
+          message: "Converting Error",
+          caption: args.file,
+        });
+        break;
+    }
+  });
+});
 </script>
 
 <template>
@@ -69,6 +113,19 @@ function openSetup() {
         <TooltipUp msg="Oprn Folder" />
       </div>
       <div class="q-gutter-x-sm row justify-end">
+        <div v-if="converting" class="self-center">
+          <q-spinner color="primary" size="2em" :thickness="10" />
+          <TooltipUp msg="Converting..." />
+        </div>
+
+        <TooltipBtn
+          v-else
+          :disable="recState === 'recording'"
+          icon="transform"
+          color="green-8"
+          msg="Convert Format"
+          @click="convertMkv"
+        />
         <TooltipBtn
           :disable="recState === 'recording'"
           icon="folder"

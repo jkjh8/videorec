@@ -27,6 +27,17 @@ onMounted(async () => {
     });
   });
 
+  API.handle("file:saved", (e, filePath) => {
+    console.log(filePath);
+    $q.notify({
+      color: "primary",
+      icon: "info",
+      position: "top",
+      message: "File Saved",
+      caption: filePath,
+    });
+  });
+
   $q.loading.show();
   try {
     await getDevices();
