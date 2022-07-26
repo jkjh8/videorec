@@ -2,7 +2,6 @@ import { BrowserWindow, ipcMain, shell } from 'electron'
 import fs from 'node:fs'
 import db from '../../db'
 import { dbSetupUpdate } from '../../db/dbFunc'
-import { logger } from '../../logger'
 import {
   getDiskUseage,
   getFolderDialog,
@@ -13,7 +12,7 @@ import {
 
 ipcMain.handle('setup:update', async (e, items) => {
   items.forEach(async (item) => {
-    logger.info(`setup update ${item}`)
+    console.log(`setup update ${item}`)
     await dbSetupUpdate(item)
   })
   return items
@@ -28,10 +27,10 @@ ipcMain.handle('status:selfolder', async () => {
   const cf = await getFolderDialog()
   if (cf && cf.length) {
     await dbSetupUpdate({ key: 'folder', value: cf[0] })
-    logger.info(`Folder Changed ${cf[0]}`)
+    console.log(`Folder Changed ${cf[0]}`)
     return cf[0]
   }
-  logger.info('Folder Change Failed')
+  console.log('Folder Change Failed')
   return homePath
 })
 ipcMain.handle('status:getfolder', async () => {
