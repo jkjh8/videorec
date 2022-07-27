@@ -63,10 +63,11 @@ onBeforeMount(async () => {
 
 <template>
   <div class="q-gutter-y-md" style="padding: 10px 10px 10px 10px">
-    <div class="row justify-center" :class="recState ? 'bg-red' : 'bg-black'">
+    <div class="row justify-center">
       <video
         ref="video"
         class="video"
+        :style="recState ? 'border: 1px solid red' : 'border: 1px solid #222'"
         @loadedmetadata="windowResize"
         @dblclick="setWindowSize"
       />
@@ -79,7 +80,7 @@ onBeforeMount(async () => {
 <style scoped>
 .video {
   width: 100%;
-  border-radius: 2px;
+  border-radius: 5px;
   background: #111;
 }
 </style>

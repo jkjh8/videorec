@@ -48,6 +48,7 @@ async function getFileDialog() {
   return dialog.showOpenDialogSync({
     title: 'Select File',
     defaultPath: currentPath ? currentPath : homePath,
+    filters: [{ name: 'Video', extensions: ['webm'] }],
     properties: ['openFile']
   })
 }
