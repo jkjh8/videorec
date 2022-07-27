@@ -63,7 +63,7 @@ async function getDiskUseage() {
   disk.value = await API.send('status:diskuseage')
 }
 async function getFolder() {
-  API.send('status:getfolder')
+  folder.value = await API.send('status:getfolder')
 }
 
 export {

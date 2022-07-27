@@ -43,7 +43,6 @@ function setAudioMeter() {
 
     ctxL = meterL.value.getContext('2d')
     ctxR = meterR.value.getContext('2d')
-    // setInterval(() => drawMeter(), 500)
     drawMeter()
   } catch (err) {
     console.error('init error ', err)

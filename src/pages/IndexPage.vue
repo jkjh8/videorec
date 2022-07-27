@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
+import { recState } from "src/composables/useRecorder";
 import { getDevices, changeDevices, startStream } from "src/composables/useStream";
 import { video, windowResize, setWindowSize, setVideo } from "src/composables/useVideo";
 import { setMeterWidth, setAudioMeter } from "src/composables/useAudio";
