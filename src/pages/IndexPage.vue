@@ -63,7 +63,7 @@ onBeforeMount(async () => {
 
 <template>
   <div class="q-gutter-y-md" style="padding: 10px 10px 10px 10px">
-    <div class="row justify-center">
+    <div class="row justify-center" :class="recState ? 'bg-red' : 'bg-black'">
       <video
         ref="video"
         class="video"
