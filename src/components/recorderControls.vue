@@ -13,6 +13,7 @@ import TooltipBtn from "components/tooltipBtn";
 import TooltipUp from "components/tooltipUp";
 
 const converting = ref(false);
+const convertingTime = ref("00:00:00");
 
 const { humanStorageSize } = format;
 const $q = useQuasar();
@@ -53,6 +54,9 @@ onMounted(() => {
           caption: args.file,
         });
         break;
+      case "progress":
+        convertingTime.value = args.value;
+        break;
       case "end":
         converting.value = false;
         $q.notify({
@@ -90,7 +94,7 @@ onMounted(() => {
           <div>{{ humanStorageSize(disk.size - disk.free) }}</div>
           <div>{{ humanStorageSize(disk.size) }}</div>
         </div>
-        <TooltipUp :msg="`${humanStorageSize(disk.size)} Free`" />
+        <TooltipUp :msg="`${humanStorageSize(disk.free)} Free`" />
       </div>
     </div>
 
@@ -115,7 +119,7 @@ onMounted(() => {
       <div class="q-gutter-x-sm row justify-end">
         <div v-if="converting" class="self-center">
           <q-spinner color="primary" size="2em" :thickness="10" />
-          <TooltipUp msg="Converting..." />
+          <TooltipUp :msg="convertingTime" />
         </div>
 
         <TooltipBtn

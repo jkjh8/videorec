@@ -20,6 +20,10 @@ export function webmToMkv(args) {
     })
     .on('progress', (progress) => {
       console.log(progress)
+      sendMsgWindows('file:convert', {
+        comm: 'progress',
+        value: progress.timemark ?? '00:00:00'
+      })
     })
     .on('error', (err) => {
       console.error(`Converting error: ${err}`)
