@@ -25,6 +25,10 @@ function setAudioMeter() {
     source.value = ac.createMediaStreamSource(stream.value)
     analyserL = ac.createAnalyser()
     analyserR = ac.createAnalyser()
+    analyserL.minDecibels = -100
+    analyserL.maxDecibels = -30
+    analyserR.minDecibels = -100
+    analyserR.maxDecibels = -30
 
     const spliter = ac.createChannelSplitter(2)
 
@@ -32,8 +36,8 @@ function setAudioMeter() {
     spliter.connect(analyserL, 0)
     spliter.connect(analyserR, 1)
 
-    meterDataL = new Uint8Array(analyserL.fftSize)
-    meterDataR = new Uint8Array(analyserR.fftSize)
+    meterDataL = new Uint8Array(analyserL.frequencyBinCount)
+    meterDataR = new Uint8Array(analyserR.frequencyBinCount)
 
     ctxL = meterL.value.getContext('2d')
     ctxR = meterR.value.getContext('2d')
@@ -47,13 +51,7 @@ function setAudioMeter() {
 function checkLevel(arr) {
   let rv = 0
   for (let i = 0; i < arr.length; i++) {
-    if (arr[i] !== 0) {
-      if (arr[i] > 128) {
-        rv = arr[i] % 128
-      } else {
-        rv = 128 - arr[i]
-      }
-    }
+    rv = Math.max(rv, arr[i])
   }
   return rv
 }
@@ -69,35 +67,35 @@ function drawMeter() {
     const levelL = checkLevel(meterDataL)
     const levelR = checkLevel(meterDataR)
 
-    if (levelL > 126) {
+    if (levelL > 254) {
       if (peakIntervalL) {
         clearTimeout(peakIntervalL)
       }
       setPeak('L')
     }
 
-    if (levelR > 126) {
+    if (levelR > 254) {
       if (peakIntervalR) {
         clearTimeout(peakIntervalR)
       }
       setPeak('R')
     }
 
-    smoothLevelL = 0.9 * smoothLevelL + 0.1 * levelL
-    smoothLevelR = 0.9 * smoothLevelR + 0.1 * levelR
+    smoothLevelL = 0.85 * smoothLevelL + 0.15 * levelL
+    smoothLevelR = 0.85 * smoothLevelR + 0.15 * levelR
     ctxL.fillStyle = '#1976d2'
     ctxR.fillStyle = '#1976d2'
 
     ctxL.fillRect(
       0,
       0,
-      (meterL.value.width / 128) * smoothLevelL,
+      (meterL.value.width / 255) * smoothLevelL,
       meterL.value.height
     )
     ctxR.fillRect(
       0,
       0,
-      (meterR.value.width / 128) * smoothLevelR,
+      (meterR.value.width / 255) * smoothLevelR,
       meterR.value.height
     )
   } catch (err) {
