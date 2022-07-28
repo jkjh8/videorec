@@ -17,6 +17,7 @@ try {
 } catch (_) {}
 
 let mainWindow
+const margin = os.platform() === 'win32' ? 195 : 165
 
 function createWindow() {
   /**
@@ -25,7 +26,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
     width: 820,
-    height: 450 + 165,
+    height: 450 + margin,
     useContentSize: true,
     webPreferences: {
       contextIsolation: true,

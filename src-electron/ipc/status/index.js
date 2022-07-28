@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain, shell } from 'electron'
+import os from 'os'
 import fs from 'node:fs'
 import db from '../../db'
 import { dbSetupUpdate } from '../../db/dbFunc'
@@ -9,6 +10,14 @@ import {
   checkFolder,
   sendMsgWindows
 } from '../index'
+
+const platform = os.platform()
+let margin
+if (platform === 'win32') {
+  margin = 195
+} else {
+  margin = 165
+}
 
 ipcMain.handle('setup:update', async (e, items) => {
   items.forEach(async (item) => {
@@ -47,12 +56,12 @@ ipcMain.handle('status:resize', (e, hi) => {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((win) => {
     const cs = win.getSize()
-    win.setSize(cs[0], hi + 165)
+    win.setSize(cs[0], hi + margin)
   })
 })
 ipcMain.handle('status:setSize', (e, size) => {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((win) => {
-    win.setSize(size.width + 20, size.height + 165)
+    win.setSize(size.width + 20, size.height + margin)
   })
 })
