@@ -1,19 +1,21 @@
 import { ref, computed } from 'vue'
 import { stream } from './useStream'
 import { qualitys } from './recorder/recorderOptions'
-import { error } from './useStatus'
 import fixWebmDuration from 'webm-duration-fix'
 import { Buffer } from 'buffer'
-import { useQuasar } from 'quasar'
 global.Buffer = Buffer
 
 let blobSlice = []
+
+// timer val
 const time = ref(0)
 let currentTime = 0
+
+// recorder default val
 const recorder = ref(null)
 const format = ref('video/webm')
 const quality = ref(4000000)
-const recState = ref('')
+const recState = ref('inactive')
 
 const clockString = computed(() => {
   let sec = parseInt(time.value / 1000)
@@ -29,6 +31,13 @@ const clockString = computed(() => {
   return h + ':' + m + ':' + s
 })
 
+function updateTime(timeStamp) {
+  if (currentTime) {
+    time.value = time.value + timeStamp - currentTime
+  }
+  currentTime = timeStamp
+}
+
 function setRecorder() {
   return new Promise((resolve, reject) => {
     try {
@@ -42,15 +51,9 @@ function setRecorder() {
       })
 
       recorder.value.ondataavailable = async (d) => {
-        if (currentTime) {
-          time.value = time.value + d.timeStamp - currentTime
-        }
-        currentTime = d.timeStamp
+        updateTime(d.timeStamp)
         blobSlice.push(d.data)
-        API.send('rec:data', {
-          buffer: await d.data.arrayBuffer(),
-          time: time.value
-        })
+        API.send('rec:data', await d.data.arrayBuffer())
       }
 
       recorder.value.onerror = (e) => {

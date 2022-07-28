@@ -1,98 +1,47 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useQuasar, format } from "quasar";
-import { audioMute, setAudioMute, setVideo } from "src/composables/useVideo";
-import { setAudioMeter } from "src/composables/useAudio";
-import { disk, folder, error, selFolder, openFolder } from "src/composables/useStatus";
-import { stream, startStream, stopStream } from "src/composables/useStream";
-import { recState, clockString, recStartStop } from "src/composables/useRecorder";
+import { useQuasar } from 'quasar'
+import { audioMute, setAudioMute, setVideo } from 'src/composables/useVideo'
+import { setAudioMeter } from 'src/composables/useAudio'
+import { folder, error, selFolder, openFolder } from 'src/composables/useStatus'
+import { startStream, stopStream } from 'src/composables/useStream'
+import { recState, recStartStop } from 'src/composables/useRecorder'
 
-import AudioMeter from "components/audioMeter.vue";
-import SetupDialog from "components/dialogs/setupDialog.vue";
-import TooltipBtn from "components/tooltipBtn";
-import TooltipUp from "components/tooltipUp";
+import AudioMeter from 'components/audioMeter.vue'
+import ConvertingBtns from 'components/convertingBtns.vue'
+import RecorderTimer from 'components/recorderTimer.vue'
 
-const converting = ref(false);
+import SetupDialog from 'components/dialogs/setupDialog.vue'
 
-const { humanStorageSize } = format;
-const $q = useQuasar();
+import TooltipBtn from 'components/tooltipBtn'
+import TooltipUp from 'components/tooltipUp'
 
-function convertMkv() {
-  API.send("file:convert");
-}
+const $q = useQuasar()
 
 function openSetup() {
   $q.dialog({
-    component: SetupDialog,
+    component: SetupDialog
   }).onOk(async (items) => {
-    $q.loading.show();
+    $q.loading.show()
     try {
-      await API.send("setup:update", items);
-      error.value = await stopStream();
-      error.value = await startStream();
-      setVideo();
-      setAudioMeter();
-      $q.loading.hide();
+      await API.send('setup:update', items)
+      error.value = await stopStream()
+      error.value = await startStream()
+      setVideo()
+      setAudioMeter()
+      $q.loading.hide()
     } catch (err) {
-      $q.loading.hide();
-      error.value = err.name;
+      $q.loading.hide()
+      error.value = err.name
     }
-  });
+  })
 }
-
-onMounted(() => {
-  API.handle("file:convert", (e, args) => {
-    switch (args.comm) {
-      case "start":
-        converting.value = true;
-        $q.notify({
-          color: "primary",
-          icon: "info",
-          position: "top",
-          message: "Converting Start",
-          caption: args.file,
-        });
-        break;
-      case "end":
-        converting.value = false;
-        $q.notify({
-          color: "primary",
-          icon: "info",
-          position: "top",
-          message: "Converting Complited",
-          caption: args.file,
-        });
-        break;
-      case "error":
-        converting.value = false;
-        $q.notify({
-          color: "red-10",
-          icon: "warning",
-          position: "top",
-          message: "Converting Error",
-          caption: args.file,
-        });
-        break;
-    }
-  });
-});
 </script>
 
 <template>
   <AudioMeter />
   <div class="row justify-between items-center control-box">
     <!-- timer -->
-    <div>
-      <div class="text-h3">{{ clockString }}</div>
-      <div v-if="disk">
-        <q-linear-progress :value="(disk.size - disk.free) / disk.size" />
-        <div class="row justify-between items-center">
-          <div>{{ humanStorageSize(disk.size - disk.free) }}</div>
-          <div>{{ humanStorageSize(disk.size) }}</div>
-        </div>
-        <TooltipUp :msg="`${humanStorageSize(disk.size)} Free`" />
-      </div>
-    </div>
+    <RecorderTimer />
 
     <!-- play btn -->
     <q-btn
@@ -113,19 +62,7 @@ onMounted(() => {
         <TooltipUp msg="Oprn Folder" />
       </div>
       <div class="q-gutter-x-sm row justify-end">
-        <div v-if="converting" class="self-center">
-          <q-spinner color="primary" size="2em" :thickness="10" />
-          <TooltipUp msg="Converting..." />
-        </div>
-
-        <TooltipBtn
-          v-else
-          :disable="recState === 'recording'"
-          icon="transform"
-          color="green-8"
-          msg="Convert Format"
-          @click="convertMkv"
-        />
+        <ConvertingBtns />
         <TooltipBtn
           :disable="recState === 'recording'"
           icon="folder"

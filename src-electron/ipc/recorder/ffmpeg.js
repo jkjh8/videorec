@@ -1,6 +1,5 @@
 import fs from 'fs'
 import ffmpeg from 'fluent-ffmpeg'
-// import ffmpegPath from 'ffmpeg-static'
 import { sendMsgWindows } from '../index.js'
 const FfmpegPath = require('ffmpeg-static').replace(
   'app.asar',
@@ -20,6 +19,10 @@ export function webmToMkv(args) {
     })
     .on('progress', (progress) => {
       console.log(progress)
+      sendMsgWindows('file:convert', {
+        comm: 'progress',
+        value: progress.timemark
+      })
     })
     .on('error', (err) => {
       console.error(`Converting error: ${err}`)

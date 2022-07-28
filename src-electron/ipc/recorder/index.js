@@ -46,9 +46,9 @@ ipcMain.handle('rec:start', async () => {
   }
 })
 
-ipcMain.handle('rec:data', (e, args) => {
+ipcMain.handle('rec:data', (e, buffer) => {
   try {
-    writeFileStream.write(Buffer.from(args.buffer))
+    writeFileStream.write(Buffer.from(buffer))
   } catch (err) {
     console.error(`recording data error: ${err}`)
   }
