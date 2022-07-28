@@ -47,12 +47,12 @@ ipcMain.handle('status:resize', (e, hi) => {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((win) => {
     const cs = win.getSize()
-    win.setSize(cs[0], hi + 160)
+    win.setSize(cs[0], hi + 165)
   })
 })
 ipcMain.handle('status:setSize', (e, size) => {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((win) => {
-    win.setSize(size.width + 20, size.height + 160)
+    win.setSize(size.width + 20, size.height + 165)
   })
 })
