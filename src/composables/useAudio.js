@@ -50,14 +50,6 @@ function setAudioMeter() {
   }
 }
 
-function checkLevel(arr) {
-  let rv = 0
-  for (let i = 0; i < arr.length; i++) {
-    rv = Math.max(rv, arr[i])
-  }
-  return rv
-}
-
 function drawMeter() {
   try {
     requestAnimationFrame(drawMeter)
