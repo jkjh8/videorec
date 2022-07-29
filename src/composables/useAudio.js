@@ -29,6 +29,8 @@ function setAudioMeter() {
     analyserL.maxDecibels = -30
     analyserR.minDecibels = -100
     analyserR.maxDecibels = -30
+    analyserL.smoothingTimeConstant = 0.8
+    analyserR.smoothingTimeConstant = 0.8
 
     const spliter = ac.createChannelSplitter(2)
 
@@ -61,11 +63,13 @@ function drawMeter() {
     requestAnimationFrame(drawMeter)
     ctxL.clearRect(0, 0, meterL.value.width, meterL.value.height)
     ctxR.clearRect(0, 0, meterR.value.width, meterR.value.height)
+    ctxL.fillStyle = '#1976d2'
+    ctxR.fillStyle = '#1976d2'
     analyserL.getByteFrequencyData(meterDataL)
     analyserR.getByteFrequencyData(meterDataR)
 
-    const levelL = checkLevel(meterDataL)
-    const levelR = checkLevel(meterDataR)
+    const levelL = Math.max(...meterDataL)
+    const levelR = Math.max(...meterDataR)
 
     if (levelL > 254) {
       if (peakIntervalL) {
@@ -83,19 +87,17 @@ function drawMeter() {
 
     smoothLevelL = 0.85 * smoothLevelL + 0.15 * levelL
     smoothLevelR = 0.85 * smoothLevelR + 0.15 * levelR
-    ctxL.fillStyle = '#1976d2'
-    ctxR.fillStyle = '#1976d2'
 
     ctxL.fillRect(
       0,
       0,
-      (meterL.value.width / 255) * smoothLevelL,
+      (meterL.value.width / 255) * levelL,
       meterL.value.height
     )
     ctxR.fillRect(
       0,
       0,
-      (meterR.value.width / 255) * smoothLevelR,
+      (meterR.value.width / 255) * levelR,
       meterR.value.height
     )
   } catch (err) {
