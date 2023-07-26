@@ -29,6 +29,7 @@ function createWindow() {
     height: 450 + margin,
     useContentSize: true,
     webPreferences: {
+      sandbox: false,
       contextIsolation: true,
       nodeIntegrationInWorker: true,
       // More info: https://v2.quasar.dev/quasar-cli-webpack/developing-electron-apps/electron-preload-script

@@ -28,7 +28,7 @@
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app-webpack": "^3.0.0",
     "@vue/devtools": "^6.2.0",
-    "electron": "^19.0.8",
+    "electron": "^24.4.0",
     "electron-builder": "^23.0.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
